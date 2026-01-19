@@ -260,8 +260,5 @@ The following aspects are actively being formalized (see `WIP/` directory):
 
 ## License
 
-MIT License - See [LICENSE](LICENSE)
-
----
-
-<sub>Part of the **HeytingLean** formalization project • [apoth3osis.io](https://apoth3osis.io)</sub>
+This project is provided under the Apoth3osis License Stack v1.
+See `LICENSE.md` and the files under `licenses/`.
