@@ -29,13 +29,11 @@ This document outlines foundational concepts and methodologies developed during 
 > *"Any sufficiently smooth dynamical system can simulate any Turing machine."*
 > — **Eva Miranda**, on the computational universality of contact flows (2025)
 
-This formalization honors the groundbreaking work of **Professor Eva Miranda** (Universitat Politècnica de Catalunya) and her collaborators, who have established profound connections between dynamical systems and computation theory. Their results demonstrate that classical physical systems—billiards, fluid flows, contact dynamics—are not merely mechanical curiosities but fundamental models of computation, equivalent in power to universal Turing machines.
-
 ### Acknowledgment
 
-We humbly thank the collective intelligence of humanity for providing the technology and culture we cherish. We do our best to properly reference the authors of the works utilized herein, though we may occasionally fall short. Our formalization acts as a reciprocal validation—confirming the structural integrity of their original insights while securing the foundation upon which we build. In truth, all creative work is derivative; we stand on the shoulders of those who came before, and our contributions are simply the next link in an unbroken chain of human ingenuity.
+This formalization honors the groundbreaking work of **Professor Eva Miranda** (Universitat Politècnica de Catalunya) and her collaborators, who have established profound connections between dynamical systems and computation theory. Their results demonstrate that classical physical systems—billiards, fluid flows, contact dynamics—are not merely mechanical curiosities but fundamental models of computation, equivalent in power to universal Turing machines. This formalization would not exist without their mathematical vision.
 
-**Special acknowledgment** is due to Professor Eva Miranda and her research group for their pioneering work connecting symplectic/contact geometry, fluid mechanics, and computational complexity. This formalization would not exist without their mathematical vision.
+We humbly thank the collective intelligence of humanity for providing the technology and culture we cherish. We do our best to properly reference the authors of the works utilized herein, though we may occasionally fall short. Our formalization acts as a reciprocal validation—confirming the structural integrity of their original insights while securing the foundation upon which we build. In truth, all creative work is derivative; we stand on the shoulders of those who came before, and our contributions are simply the next link in an unbroken chain of human ingenuity.
 
 ---
 
@@ -159,6 +157,21 @@ theorem not_computable_of_reduces {P Q : ℕ → Prop}
 ```
 
 If a predicate reduces to an uncomputable one, it is itself uncomputable—enabling transfer of halting problem undecidability to dynamical predicates.
+
+---
+
+## Interactive Visualizations
+
+Explore the proof structure through interactive visualizations:
+
+| Visualization | Description | Link |
+|--------------|-------------|------|
+| **2D UMAP Proof Space** | Semantic clustering of 65+ theorems by module family | [View →](https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/miranda_2d.html) |
+| **3D UMAP Proof Space** | Three-dimensional exploration with auto-rotation | [View →](https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/miranda_3d.html) |
+| **Tactic Flow Graphs** | Step-by-step visualization of proof tactics | [View →](https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/tactic_flow.html) |
+| **Proof Term DAGs** | Lambda calculus AST structure of proof terms | [View →](https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/proof_term_dag.html) |
+
+**[View All Visualizations →](https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/)**
 
 ---
 
