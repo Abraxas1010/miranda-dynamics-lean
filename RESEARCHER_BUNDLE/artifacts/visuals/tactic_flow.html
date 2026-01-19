@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Miranda Dynamics - Tactic Flow</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --card: #0a0a0a;
+      --border: rgba(255,255,255,0.1);
+      --text: #fafafa;
+      --dim: #9ca3af;
+      --accent: #60a5fa;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    #header {
+      padding: 12px 20px;
+      background: rgba(0,0,0,0.9);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #header h1 { font-size: 18px; font-weight: 600; }
+    #header h1 span { color: var(--accent); }
+    #main { display: flex; flex: 1; overflow: hidden; }
+    #sidebar {
+      width: 280px;
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+    #sidebar h3 {
+      padding: 16px;
+      font-size: 13px;
+      color: var(--dim);
+      border-bottom: 1px solid var(--border);
+    }
+    #theorem-list { flex: 1; overflow-y: auto; }
+    .theorem-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .theorem-item:hover { background: rgba(255,255,255,0.05); }
+    .theorem-item.active { background: rgba(96, 165, 250, 0.15); border-left: 3px solid var(--accent); }
+    .theorem-item .name { font-weight: 600; font-size: 13px; }
+    .theorem-item .file { font-size: 11px; color: var(--dim); margin-top: 4px; }
+    #content { flex: 1; display: flex; flex-direction: column; }
+    #info-bar {
+      padding: 16px 20px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+    }
+    #info-bar .name { font-size: 16px; font-weight: 600; color: var(--accent); }
+    #info-bar .desc { font-size: 13px; color: var(--dim); margin-top: 4px; }
+    #info-bar .stmt {
+      font-family: monospace;
+      font-size: 12px;
+      background: rgba(255,255,255,0.05);
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+    #graph-container { flex: 1; position: relative; overflow: auto; }
+    #graph { min-height: 100%; padding: 40px; }
+    .node {
+      position: absolute;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      max-width: 300px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      transition: filter 0.2s, box-shadow 0.2s;
+    }
+    .node:hover { filter: brightness(1.2); box-shadow: 0 0 10px rgba(255,255,255,0.2); }
+    .node.goal { background: #3b82f6; }
+    .node.hypothesis { background: #10b981; }
+    .node.tactic { background: #f59e0b; }
+    .node.simp_trace { background: #8b5cf6; }
+    .node.qed { background: #10b981; font-weight: 600; }
+    #detail {
+      position: fixed;
+      right: 0;
+      top: 50px;
+      width: 300px;
+      bottom: 0;
+      background: var(--card);
+      border-left: 1px solid var(--border);
+      padding: 20px;
+      transform: translateX(100%);
+      transition: transform 0.2s;
+    }
+    #detail.open { transform: translateX(0); }
+    #detail h4 { font-size: 14px; color: var(--dim); margin-bottom: 12px; }
+    #detail .label { font-family: monospace; font-size: 13px; word-break: break-all; }
+    #detail .close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: var(--dim);
+      cursor: pointer;
+      font-size: 18px;
+    }
+    svg.edges {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    #legend {
+      position: fixed;
+      bottom: 20px;
+      left: 300px;
+      display: flex;
+      gap: 16px;
+      background: rgba(0,0,0,0.8);
+      padding: 10px 16px;
+      border-radius: 6px;
+    }
+    #legend .item { display: flex; align-items: center; gap: 6px; font-size: 11px; }
+    #legend .dot { width: 10px; height: 10px; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <h1><span>Miranda Dynamics</span> — Tactic Flow</h1>
+  </div>
+  <div id="main">
+    <div id="sidebar">
+      <h3>Theorems</h3>
+      <div id="theorem-list"></div>
+    </div>
+    <div id="content">
+      <div id="info-bar">
+        <div class="name" id="thm-name">Select a theorem</div>
+        <div class="desc" id="thm-desc"></div>
+        <div class="stmt" id="thm-stmt"></div>
+      </div>
+      <div id="graph-container">
+        <div id="graph"></div>
+      </div>
+    </div>
+  </div>
+  <div id="detail">
+    <button class="close" onclick="closeDetail()">×</button>
+    <h4>Node Detail</h4>
+    <div class="label" id="detail-label"></div>
+  </div>
+  <div id="legend">
+    <div class="item"><div class="dot" style="background:#3b82f6"></div> Goal</div>
+    <div class="item"><div class="dot" style="background:#10b981"></div> Hypothesis</div>
+    <div class="item"><div class="dot" style="background:#f59e0b"></div> Tactic</div>
+    <div class="item"><div class="dot" style="background:#8b5cf6"></div> Simp</div>
+  </div>
+
+  <script src="tactic_flow_data.js"></script>
+  <script>
+    const data = tacticFlowData;
+    const listEl = document.getElementById('theorem-list');
+    const graphEl = document.getElementById('graph');
+    const nameEl = document.getElementById('thm-name');
+    const descEl = document.getElementById('thm-desc');
+    const stmtEl = document.getElementById('thm-stmt');
+    const detailEl = document.getElementById('detail');
+    const detailLabel = document.getElementById('detail-label');
+
+    let currentThm = null;
+
+    function buildList() {
+      listEl.innerHTML = '';
+      data.theorems.forEach((thm, i) => {
+        const div = document.createElement('div');
+        div.className = 'theorem-item' + (i === 0 ? ' active' : '');
+        div.innerHTML = `<div class="name">${thm.name}</div><div class="file">${thm.file}</div>`;
+        div.onclick = () => selectTheorem(i);
+        listEl.appendChild(div);
+      });
+    }
+
+    function selectTheorem(idx) {
+      document.querySelectorAll('.theorem-item').forEach((el, i) => {
+        el.classList.toggle('active', i === idx);
+      });
+      currentThm = data.theorems[idx];
+      nameEl.textContent = currentThm.name;
+      descEl.textContent = currentThm.description;
+      stmtEl.textContent = currentThm.statement;
+      renderGraph(currentThm);
+      closeDetail();
+    }
+
+    function renderGraph(thm) {
+      graphEl.innerHTML = '';
+
+      const nodeW = 220, nodeH = 36, gapX = 40, gapY = 60;
+      const depthNodes = {};
+      thm.nodes.forEach(n => {
+        if (!depthNodes[n.depth]) depthNodes[n.depth] = [];
+        depthNodes[n.depth].push(n);
+      });
+
+      const positions = {};
+      const maxDepth = Math.max(...Object.keys(depthNodes).map(Number));
+
+      for (let d = 0; d <= maxDepth; d++) {
+        const nodes = depthNodes[d] || [];
+        const rowWidth = nodes.length * nodeW + (nodes.length - 1) * gapX;
+        const startX = (800 - rowWidth) / 2;
+        nodes.forEach((n, i) => {
+          positions[n.id] = {
+            x: startX + i * (nodeW + gapX),
+            y: 20 + d * (nodeH + gapY)
+          };
+        });
+      }
+
+      // SVG for edges
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.classList.add('edges');
+      svg.setAttribute('viewBox', `0 0 800 ${(maxDepth + 1) * (nodeH + gapY) + 40}`);
+      svg.style.height = ((maxDepth + 1) * (nodeH + gapY) + 40) + 'px';
+
+      thm.edges.forEach(e => {
+        const from = positions[e.from];
+        const to = positions[e.to];
+        if (!from || !to) return;
+
+        const x1 = from.x + nodeW / 2;
+        const y1 = from.y + nodeH;
+        const x2 = to.x + nodeW / 2;
+        const y2 = to.y;
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const midY = (y1 + y2) / 2;
+        path.setAttribute('d', `M${x1},${y1} L${x1},${midY} L${x2},${midY} L${x2},${y2}`);
+        path.setAttribute('stroke', 'rgba(255,255,255,0.3)');
+        path.setAttribute('stroke-width', '2');
+        path.setAttribute('fill', 'none');
+        path.setAttribute('marker-end', 'url(#arrow)');
+        svg.appendChild(path);
+      });
+
+      // Arrow marker
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      defs.innerHTML = `<marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="rgba(255,255,255,0.5)"/>
+      </marker>`;
+      svg.appendChild(defs);
+      graphEl.appendChild(svg);
+
+      // Nodes
+      thm.nodes.forEach(n => {
+        const pos = positions[n.id];
+        const div = document.createElement('div');
+        div.className = 'node ' + n.type;
+        div.textContent = n.label;
+        div.style.left = pos.x + 'px';
+        div.style.top = pos.y + 'px';
+        div.style.width = nodeW + 'px';
+        div.onclick = () => showDetail(n);
+        graphEl.appendChild(div);
+      });
+
+      graphEl.style.height = ((maxDepth + 1) * (nodeH + gapY) + 60) + 'px';
+    }
+
+    function showDetail(node) {
+      detailLabel.textContent = node.label;
+      detailEl.classList.add('open');
+    }
+
+    function closeDetail() {
+      detailEl.classList.remove('open');
+    }
+
+    buildList();
+    selectTheorem(0);
+  </script>
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Miranda Dynamics - Proof Term DAG</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --card: #0a0a0a;
+      --border: rgba(255,255,255,0.1);
+      --text: #fafafa;
+      --dim: #9ca3af;
+      --accent: #60a5fa;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    #header {
+      padding: 12px 20px;
+      background: rgba(0,0,0,0.9);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #header h1 { font-size: 18px; font-weight: 600; }
+    #header h1 span { color: var(--accent); }
+    #zoom-controls { display: flex; gap: 8px; }
+    #zoom-controls button {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #zoom-controls button:hover { background: #1a1a1a; }
+    #main { display: flex; flex: 1; overflow: hidden; }
+    #sidebar {
+      width: 280px;
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+    #sidebar h3 {
+      padding: 16px;
+      font-size: 13px;
+      color: var(--dim);
+      border-bottom: 1px solid var(--border);
+    }
+    #theorem-list { flex: 1; overflow-y: auto; }
+    .theorem-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .theorem-item:hover { background: rgba(255,255,255,0.05); }
+    .theorem-item.active { background: rgba(96, 165, 250, 0.15); border-left: 3px solid var(--accent); }
+    .theorem-item .name { font-weight: 600; font-size: 13px; }
+    .theorem-item .file { font-size: 11px; color: var(--dim); margin-top: 4px; }
+    #content { flex: 1; display: flex; flex-direction: column; }
+    #info-bar {
+      padding: 16px 20px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+    }
+    #info-bar .name { font-size: 16px; font-weight: 600; color: var(--accent); }
+    #info-bar .desc { font-size: 13px; color: var(--dim); margin-top: 4px; }
+    #info-bar .stmt {
+      font-family: monospace;
+      font-size: 12px;
+      background: rgba(255,255,255,0.05);
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+    #graph-container { flex: 1; position: relative; overflow: auto; }
+    #graph { min-height: 100%; padding: 40px; position: relative; }
+    .node {
+      position: absolute;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: monospace;
+      cursor: pointer;
+      transition: filter 0.2s, box-shadow 0.2s;
+      text-align: center;
+    }
+    .node:hover { filter: brightness(1.2); box-shadow: 0 0 10px rgba(255,255,255,0.2); }
+    .node.app { background: #3b82f6; border-radius: 6px; }
+    .node.lam { background: #8b5cf6; transform: rotate(45deg); padding: 6px 10px; }
+    .node.lam span { display: block; transform: rotate(-45deg); }
+    .node.var { background: #22c55e; border-radius: 50%; min-width: 60px; }
+    .node.const { background: #f59e0b; }
+    .node.eq { background: #06b6d4; }
+    .node.mk { background: #ec4899; }
+    .node.calc { background: #14b8a6; }
+    svg.edges {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    #detail {
+      position: fixed;
+      right: 0;
+      top: 50px;
+      width: 300px;
+      bottom: 0;
+      background: var(--card);
+      border-left: 1px solid var(--border);
+      padding: 20px;
+      transform: translateX(100%);
+      transition: transform 0.2s;
+    }
+    #detail.open { transform: translateX(0); }
+    #detail h4 { font-size: 14px; color: var(--dim); margin-bottom: 12px; }
+    #detail .label { font-family: monospace; font-size: 13px; word-break: break-all; }
+    #detail .type { color: var(--dim); font-size: 11px; margin-top: 8px; }
+    #detail .close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: var(--dim);
+      cursor: pointer;
+      font-size: 18px;
+    }
+    #legend {
+      position: fixed;
+      bottom: 20px;
+      left: 300px;
+      display: flex;
+      gap: 16px;
+      background: rgba(0,0,0,0.8);
+      padding: 10px 16px;
+      border-radius: 6px;
+    }
+    #legend .item { display: flex; align-items: center; gap: 6px; font-size: 11px; }
+    #legend .dot { width: 14px; height: 14px; }
+    #legend .dot.rect { border-radius: 3px; }
+    #legend .dot.diamond { transform: rotate(45deg); border-radius: 2px; }
+    #legend .dot.circle { border-radius: 50%; }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <h1><span>Miranda Dynamics</span> — Proof Term DAG</h1>
+    <div id="zoom-controls">
+      <button onclick="zoomIn()">+</button>
+      <button onclick="zoomOut()">−</button>
+      <button onclick="resetZoom()">Reset</button>
+    </div>
+  </div>
+  <div id="main">
+    <div id="sidebar">
+      <h3>Theorems</h3>
+      <div id="theorem-list"></div>
+    </div>
+    <div id="content">
+      <div id="info-bar">
+        <div class="name" id="thm-name">Select a theorem</div>
+        <div class="desc" id="thm-desc"></div>
+        <div class="stmt" id="thm-stmt"></div>
+      </div>
+      <div id="graph-container">
+        <div id="graph"></div>
+      </div>
+    </div>
+  </div>
+  <div id="detail">
+    <button class="close" onclick="closeDetail()">×</button>
+    <h4>Term Detail</h4>
+    <div class="label" id="detail-label"></div>
+    <div class="type" id="detail-type"></div>
+  </div>
+  <div id="legend">
+    <div class="item"><div class="dot rect" style="background:#3b82f6"></div> App</div>
+    <div class="item"><div class="dot diamond" style="background:#8b5cf6"></div> Lambda</div>
+    <div class="item"><div class="dot circle" style="background:#22c55e"></div> Var</div>
+    <div class="item"><div class="dot rect" style="background:#f59e0b"></div> Const</div>
+    <div class="item"><div class="dot rect" style="background:#ec4899"></div> Constructor</div>
+  </div>
+
+  <script src="proof_term_data.js"></script>
+  <script>
+    const data = proofTermData;
+    const listEl = document.getElementById('theorem-list');
+    const graphEl = document.getElementById('graph');
+    const nameEl = document.getElementById('thm-name');
+    const descEl = document.getElementById('thm-desc');
+    const stmtEl = document.getElementById('thm-stmt');
+    const detailEl = document.getElementById('detail');
+    const detailLabel = document.getElementById('detail-label');
+    const detailType = document.getElementById('detail-type');
+
+    let currentThm = null;
+    let zoom = 1;
+
+    function buildList() {
+      listEl.innerHTML = '';
+      data.theorems.forEach((thm, i) => {
+        const div = document.createElement('div');
+        div.className = 'theorem-item' + (i === 0 ? ' active' : '');
+        div.innerHTML = `<div class="name">${thm.name}</div><div class="file">${thm.file}</div>`;
+        div.onclick = () => selectTheorem(i);
+        listEl.appendChild(div);
+      });
+    }
+
+    function selectTheorem(idx) {
+      document.querySelectorAll('.theorem-item').forEach((el, i) => {
+        el.classList.toggle('active', i === idx);
+      });
+      currentThm = data.theorems[idx];
+      nameEl.textContent = currentThm.name;
+      descEl.textContent = currentThm.description;
+      stmtEl.textContent = currentThm.statement;
+      renderGraph(currentThm);
+      closeDetail();
+    }
+
+    function renderGraph(thm) {
+      graphEl.innerHTML = '';
+
+      const nodeW = 160, nodeH = 36, gapX = 30, gapY = 70;
+      const depthNodes = {};
+      thm.nodes.forEach(n => {
+        if (!depthNodes[n.depth]) depthNodes[n.depth] = [];
+        depthNodes[n.depth].push(n);
+      });
+
+      const positions = {};
+      const maxDepth = Math.max(...Object.keys(depthNodes).map(Number));
+
+      for (let d = 0; d <= maxDepth; d++) {
+        const nodes = depthNodes[d] || [];
+        const rowWidth = nodes.length * nodeW + (nodes.length - 1) * gapX;
+        const startX = (700 - rowWidth) / 2;
+        nodes.forEach((n, i) => {
+          positions[n.id] = {
+            x: startX + i * (nodeW + gapX),
+            y: 20 + d * (nodeH + gapY)
+          };
+        });
+      }
+
+      // SVG for edges
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.classList.add('edges');
+      const h = (maxDepth + 1) * (nodeH + gapY) + 40;
+      svg.setAttribute('viewBox', `0 0 700 ${h}`);
+      svg.style.height = h + 'px';
+
+      // Defs for arrow marker
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      defs.innerHTML = `<marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="rgba(255,255,255,0.4)"/>
+      </marker>`;
+      svg.appendChild(defs);
+
+      thm.edges.forEach(e => {
+        const from = positions[e.from];
+        const to = positions[e.to];
+        if (!from || !to) return;
+
+        const x1 = from.x + nodeW / 2;
+        const y1 = from.y + nodeH;
+        const x2 = to.x + nodeW / 2;
+        const y2 = to.y;
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const midY = (y1 + y2) / 2;
+        path.setAttribute('d', `M${x1},${y1} C${x1},${midY} ${x2},${midY} ${x2},${y2}`);
+        path.setAttribute('stroke', 'rgba(255,255,255,0.3)');
+        path.setAttribute('stroke-width', '2');
+        path.setAttribute('fill', 'none');
+        path.setAttribute('marker-end', 'url(#arrow)');
+        svg.appendChild(path);
+      });
+
+      graphEl.appendChild(svg);
+
+      // Nodes
+      thm.nodes.forEach(n => {
+        const pos = positions[n.id];
+        const div = document.createElement('div');
+        div.className = 'node ' + n.type;
+        if (n.type === 'lam') {
+          div.innerHTML = `<span>${n.label}</span>`;
+        } else {
+          div.textContent = n.label;
+        }
+        div.style.left = pos.x + 'px';
+        div.style.top = pos.y + 'px';
+        div.style.width = nodeW + 'px';
+        div.onclick = () => showDetail(n);
+        graphEl.appendChild(div);
+      });
+
+      graphEl.style.height = h + 'px';
+      graphEl.style.transform = `scale(${zoom})`;
+      graphEl.style.transformOrigin = 'top left';
+    }
+
+    function showDetail(node) {
+      detailLabel.textContent = node.label;
+      detailType.textContent = 'Type: ' + node.type;
+      detailEl.classList.add('open');
+    }
+
+    function closeDetail() {
+      detailEl.classList.remove('open');
+    }
+
+    function zoomIn() {
+      zoom = Math.min(2, zoom + 0.1);
+      if (currentThm) graphEl.style.transform = `scale(${zoom})`;
+    }
+
+    function zoomOut() {
+      zoom = Math.max(0.5, zoom - 0.1);
+      if (currentThm) graphEl.style.transform = `scale(${zoom})`;
+    }
+
+    function resetZoom() {
+      zoom = 1;
+      if (currentThm) graphEl.style.transform = `scale(${zoom})`;
+    }
+
+    buildList();
+    selectTheorem(0);
+  </script>
+</body>
+</html>

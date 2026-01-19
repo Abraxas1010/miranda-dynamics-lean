@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Miranda Dynamics - 2D Proof Map</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --card: #0a0a0a;
+      --border: rgba(255,255,255,0.1);
+      --text: #fafafa;
+      --dim: #9ca3af;
+      --accent: #60a5fa;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+    }
+    #header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 20px;
+      background: rgba(0,0,0,0.9);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+    }
+    #header h1 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    #header h1 span { color: var(--accent); }
+    #search {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 6px;
+      width: 250px;
+    }
+    #search:focus { outline: none; border-color: var(--accent); }
+    #canvas-container {
+      position: fixed;
+      top: 50px;
+      left: 0;
+      right: 200px;
+      bottom: 0;
+    }
+    canvas { display: block; }
+    #legend {
+      position: fixed;
+      top: 50px;
+      right: 0;
+      width: 200px;
+      bottom: 0;
+      background: var(--card);
+      border-left: 1px solid var(--border);
+      padding: 16px;
+      overflow-y: auto;
+    }
+    #legend h3 {
+      font-size: 14px;
+      margin-bottom: 12px;
+      color: var(--dim);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      padding: 6px 0;
+      cursor: pointer;
+      opacity: 1;
+      transition: opacity 0.2s;
+    }
+    .legend-item.dimmed { opacity: 0.3; }
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .legend-label {
+      font-size: 12px;
+      flex: 1;
+    }
+    .legend-count {
+      font-size: 11px;
+      color: var(--dim);
+    }
+    #tooltip {
+      position: fixed;
+      background: rgba(0,0,0,0.95);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      pointer-events: none;
+      display: none;
+      z-index: 200;
+      max-width: 300px;
+    }
+    #tooltip .name { font-weight: 600; color: var(--accent); }
+    #tooltip .kind { color: var(--dim); font-size: 11px; }
+    #tooltip .family { margin-top: 4px; font-size: 12px; }
+    #stats {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      font-size: 11px;
+      color: var(--dim);
+    }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <h1><span>Miranda Dynamics</span> — 2D Proof Map</h1>
+    <input type="text" id="search" placeholder="Search declarations...">
+  </div>
+  <div id="canvas-container">
+    <canvas id="canvas"></canvas>
+  </div>
+  <div id="legend">
+    <h3>Module Families</h3>
+    <div id="legend-items"></div>
+  </div>
+  <div id="tooltip"></div>
+  <div id="stats"></div>
+
+  <script src="miranda_proofs_data.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const container = document.getElementById('canvas-container');
+    const tooltip = document.getElementById('tooltip');
+    const searchInput = document.getElementById('search');
+    const legendItems = document.getElementById('legend-items');
+    const stats = document.getElementById('stats');
+
+    let width, height;
+    let offsetX = 0, offsetY = 0, scale = 1;
+    let isDragging = false, lastX, lastY;
+    let activeFamily = null;
+    let searchTerm = '';
+    let hoveredItem = null;
+
+    const data = mirandaProofsData;
+    const items = data.items;
+    const edges = data.edges;
+    const families = data.families;
+
+    function resize() {
+      width = container.clientWidth;
+      height = container.clientHeight;
+      canvas.width = width * window.devicePixelRatio;
+      canvas.height = height * window.devicePixelRatio;
+      canvas.style.width = width + 'px';
+      canvas.style.height = height + 'px';
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      draw();
+    }
+
+    function worldToScreen(x, y) {
+      const padding = 50;
+      const sx = padding + x * (width - 2 * padding);
+      const sy = padding + y * (height - 2 * padding);
+      return {
+        x: (sx - width/2) * scale + width/2 + offsetX,
+        y: (sy - height/2) * scale + height/2 + offsetY
+      };
+    }
+
+    function screenToWorld(sx, sy) {
+      const padding = 50;
+      const x = ((sx - offsetX - width/2) / scale + width/2 - padding) / (width - 2 * padding);
+      const y = ((sy - offsetY - height/2) / scale + height/2 - padding) / (height - 2 * padding);
+      return { x, y };
+    }
+
+    function isVisible(item) {
+      if (activeFamily && item.family !== activeFamily) return false;
+      if (searchTerm && !item.name.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+      return true;
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw edges
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 1;
+      for (const [i, j] of edges) {
+        if (i >= items.length || j >= items.length) continue;
+        const a = items[i], b = items[j];
+        if (!isVisible(a) || !isVisible(b)) continue;
+        const pa = worldToScreen(a.pos.x, a.pos.y);
+        const pb = worldToScreen(b.pos.x, b.pos.y);
+        ctx.beginPath();
+        ctx.moveTo(pa.x, pa.y);
+        ctx.lineTo(pb.x, pb.y);
+        ctx.stroke();
+      }
+
+      // Draw nodes
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const visible = isVisible(item);
+        const p = worldToScreen(item.pos.x, item.pos.y);
+        const color = families[item.family]?.color || '#888';
+        const r = item === hoveredItem ? 8 : (item.kind === 'theorem' || item.kind === 'lemma' ? 5 : 4);
+
+        ctx.globalAlpha = visible ? 1 : 0.1;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r * scale, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        if (item === hoveredItem) {
+          ctx.strokeStyle = '#fff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+      }
+      ctx.globalAlpha = 1;
+
+      // Stats
+      const visibleCount = items.filter(isVisible).length;
+      stats.textContent = `${visibleCount} / ${items.length} declarations | Zoom: ${(scale * 100).toFixed(0)}%`;
+    }
+
+    function buildLegend() {
+      legendItems.innerHTML = '';
+      for (const [family, info] of Object.entries(families)) {
+        const div = document.createElement('div');
+        div.className = 'legend-item' + (activeFamily && activeFamily !== family ? ' dimmed' : '');
+        div.innerHTML = `
+          <div class="legend-dot" style="background:${info.color}"></div>
+          <span class="legend-label">${family}</span>
+          <span class="legend-count">${info.count}</span>
+        `;
+        div.onclick = () => {
+          activeFamily = activeFamily === family ? null : family;
+          buildLegend();
+          draw();
+        };
+        legendItems.appendChild(div);
+      }
+    }
+
+    function getItemAt(mx, my) {
+      for (let i = items.length - 1; i >= 0; i--) {
+        const item = items[i];
+        if (!isVisible(item)) continue;
+        const p = worldToScreen(item.pos.x, item.pos.y);
+        const r = 8 * scale;
+        if (Math.hypot(mx - p.x, my - p.y) < r) return item;
+      }
+      return null;
+    }
+
+    canvas.addEventListener('mousedown', e => {
+      isDragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+    });
+
+    canvas.addEventListener('mousemove', e => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+
+      if (isDragging) {
+        offsetX += e.clientX - lastX;
+        offsetY += e.clientY - lastY;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        draw();
+      } else {
+        const item = getItemAt(mx, my);
+        if (item !== hoveredItem) {
+          hoveredItem = item;
+          draw();
+          if (item) {
+            tooltip.style.display = 'block';
+            tooltip.innerHTML = `
+              <div class="name">${item.name}</div>
+              <div class="kind">${item.kind}</div>
+              <div class="family">${item.family}</div>
+            `;
+            tooltip.style.left = (e.clientX + 15) + 'px';
+            tooltip.style.top = (e.clientY + 15) + 'px';
+          } else {
+            tooltip.style.display = 'none';
+          }
+        } else if (item) {
+          tooltip.style.left = (e.clientX + 15) + 'px';
+          tooltip.style.top = (e.clientY + 15) + 'px';
+        }
+      }
+    });
+
+    canvas.addEventListener('mouseup', () => isDragging = false);
+    canvas.addEventListener('mouseleave', () => {
+      isDragging = false;
+      hoveredItem = null;
+      tooltip.style.display = 'none';
+      draw();
+    });
+
+    canvas.addEventListener('wheel', e => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      const newScale = Math.max(0.5, Math.min(5, scale * delta));
+
+      offsetX = mx - (mx - offsetX) * (newScale / scale);
+      offsetY = my - (my - offsetY) * (newScale / scale);
+      scale = newScale;
+      draw();
+    });
+
+    searchInput.addEventListener('input', e => {
+      searchTerm = e.target.value;
+      draw();
+    });
+
+    window.addEventListener('resize', resize);
+    buildLegend();
+    resize();
+  </script>
+</body>
+</html>

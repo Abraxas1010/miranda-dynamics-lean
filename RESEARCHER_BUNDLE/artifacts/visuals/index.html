@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Miranda Dynamics - Proof Visualizations</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --card: #0a0a0a;
+      --border: rgba(255,255,255,0.1);
+      --text: #fafafa;
+      --dim: #9ca3af;
+      --accent: #60a5fa;
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+      --green: #22c55e;
+      --amber: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 60px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    header h1 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    header h1 span { color: var(--accent); }
+    header p {
+      color: var(--dim);
+      font-size: 18px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .badge {
+      display: inline-block;
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--dim);
+      margin-top: 16px;
+    }
+    .badge strong { color: var(--green); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 24px;
+      margin-bottom: 60px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+    }
+    .card a {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .card-preview {
+      height: 200px;
+      background: #050505;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .card-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .card-content {
+      padding: 20px;
+    }
+    .card-content h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--accent);
+    }
+    .card-content p {
+      font-size: 14px;
+      color: var(--dim);
+      margin-bottom: 12px;
+    }
+    .card-content .meta {
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+    }
+    .card-content .meta span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .card-content .meta .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .section-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+      margin-bottom: 60px;
+    }
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+    .stat .value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .stat .label {
+      font-size: 12px;
+      color: var(--dim);
+      margin-top: 4px;
+    }
+    .papers {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 40px;
+    }
+    .papers h3 {
+      font-size: 16px;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+    .papers ul {
+      list-style: none;
+    }
+    .papers li {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--dim);
+    }
+    .papers li:last-child { border-bottom: none; }
+    .papers li strong { color: var(--text); }
+    footer {
+      text-align: center;
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      color: var(--dim);
+      font-size: 13px;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    .credo {
+      max-width: 700px;
+      margin: 0 auto 40px;
+      padding: 24px;
+      background: linear-gradient(135deg, rgba(29,78,216,0.1), rgba(139,92,246,0.1));
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-style: italic;
+      color: var(--dim);
+      text-align: center;
+    }
+    .credo strong { color: var(--text); font-style: normal; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><span>Miranda Dynamics</span> — Proof Visualizations</h1>
+      <p>Interactive visualizations of formal proofs for computational universality in dynamical systems</p>
+      <div class="badge">
+        <strong>96 modules</strong> &nbsp;|&nbsp; <strong>0 sorries</strong> &nbsp;|&nbsp; Lean 4 + Mathlib
+      </div>
+    </header>
+
+    <div class="credo">
+      <strong>"A formal proof that compiles is worth a thousand simulations."</strong><br>
+      — Apoth3osis Credo §7
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="value">96</div>
+        <div class="label">Lean Modules</div>
+      </div>
+      <div class="stat">
+        <div class="value">65+</div>
+        <div class="label">Theorems</div>
+      </div>
+      <div class="stat">
+        <div class="value">0</div>
+        <div class="label">Sorries</div>
+      </div>
+      <div class="stat">
+        <div class="value">4</div>
+        <div class="label">Research Papers</div>
+      </div>
+      <div class="stat">
+        <div class="value">12</div>
+        <div class="label">Test Suites</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">Visualizations</h2>
+    <div class="grid">
+      <div class="card">
+        <a href="miranda_2d.html">
+          <div class="card-preview">
+            <img src="miranda_2d_preview.svg" alt="2D UMAP Preview">
+          </div>
+          <div class="card-content">
+            <h3>2D UMAP Proof Space</h3>
+            <p>Semantic clustering of theorems and lemmas using dimensionality reduction. Explore proof relationships visually.</p>
+            <div class="meta">
+              <span><div class="dot" style="background:#3b82f6"></div> Billiards</span>
+              <span><div class="dot" style="background:#22c55e"></div> TKFT</span>
+              <span><div class="dot" style="background:#f59e0b"></div> Discrete</span>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="card">
+        <a href="miranda_3d.html">
+          <div class="card-preview">
+            <img src="miranda_3d_preview.svg" alt="3D UMAP Preview">
+          </div>
+          <div class="card-content">
+            <h3>3D UMAP Proof Space</h3>
+            <p>Three-dimensional exploration with auto-rotation. See proof clusters from every angle.</p>
+            <div class="meta">
+              <span><div class="dot" style="background:#8b5cf6"></div> Interactive</span>
+              <span><div class="dot" style="background:#ec4899"></div> Auto-rotate</span>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="card">
+        <a href="tactic_flow.html">
+          <div class="card-preview">
+            <img src="tactic_flow_preview.svg" alt="Tactic Flow Preview">
+          </div>
+          <div class="card-content">
+            <h3>Tactic Flow Graphs</h3>
+            <p>Step-by-step visualization of proof tactics showing goal transformations and hypothesis introductions.</p>
+            <div class="meta">
+              <span><div class="dot" style="background:#3b82f6"></div> Goals</span>
+              <span><div class="dot" style="background:#10b981"></div> Hypotheses</span>
+              <span><div class="dot" style="background:#f59e0b"></div> Tactics</span>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="card">
+        <a href="proof_term_dag.html">
+          <div class="card-preview">
+            <img src="proof_term_dag_preview.svg" alt="Proof Term DAG Preview">
+          </div>
+          <div class="card-content">
+            <h3>Proof Term DAGs</h3>
+            <p>Abstract syntax tree visualization of proof terms showing lambda abstractions, applications, and constructors.</p>
+            <div class="meta">
+              <span><div class="dot" style="background:#3b82f6"></div> App</span>
+              <span><div class="dot" style="background:#8b5cf6"></div> Lambda</span>
+              <span><div class="dot" style="background:#22c55e"></div> Var</span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <h2 class="section-title">Key Theorems Featured</h2>
+    <div class="papers">
+      <ul>
+        <li><strong>encodeTape_injective</strong> — Cantor tape encoding is injective (Billiards/CantorEncoding.lean)</li>
+        <li><strong>reachesPeriod2_iff_halts</strong> — Halting ↔ period-2 orbit equivalence (Discrete/HaltingToPeriodic.lean)</li>
+        <li><strong>ReachingRel.assoc</strong> — Reaching relation composition is associative (TKFT/Reaching.lean)</li>
+        <li><strong>isFixedPoint_unionNucleus_iff</strong> — Fixed point characterization (FixedPoint/PeriodicNucleus.lean)</li>
+        <li><strong>not_computable_of_reduces</strong> — Undecidability transfer theorem (Undecidability/Transfers.lean)</li>
+      </ul>
+    </div>
+
+    <h2 class="section-title">Research Foundation</h2>
+    <div class="papers">
+      <h3>Primary Research Papers</h3>
+      <ul>
+        <li><strong>Miranda & Ramos (2025)</strong> — "Billiard-Based Turing Machines and Computational Universality"</li>
+        <li><strong>González-Prieto, Miranda, Peralta-Salas (2024)</strong> — "Topological Kleene Field Theory"</li>
+        <li><strong>Cardona, Miranda, Peralta-Salas, Presas (2021)</strong> — "Constructing Turing Complete Euler Flows"</li>
+        <li><strong>Dyhr, Miranda, Cardona (2020)</strong> — "Computability and Navier-Stokes Flows"</li>
+      </ul>
+    </div>
+
+    <footer>
+      <p>
+        <strong>Miranda Dynamics Formalization</strong><br>
+        A formal verification of computational universality in dynamical systems<br><br>
+        <a href="https://github.com/Abraxas1010/miranda-dynamics-lean">GitHub Repository</a> &nbsp;|&nbsp;
+        <a href="../../../docs/">Documentation</a> &nbsp;|&nbsp;
+        Built with <a href="https://lean-lang.org">Lean 4</a> + <a href="https://github.com/leanprover-community/mathlib4">Mathlib</a><br><br>
+        © 2026 Apoth3osis Research · MIT License
+      </p>
+    </footer>
+  </div>
+</body>
+</html>
