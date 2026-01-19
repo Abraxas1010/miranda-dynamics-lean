@@ -23,7 +23,7 @@
   </g>
 
   <!-- Edges -->
-  <g stroke="rgba(255,255,255,0.15)" stroke-width="1" fill="none">
+  <g stroke="rgba(255,255,255,0.7)" stroke-width="2" fill="none">
     <path d="M120 110 Q200 150 280 180"/>
     <path d="M350 250 Q400 280 450 260"/>
     <path d="M500 200 Q550 220 600 190"/>

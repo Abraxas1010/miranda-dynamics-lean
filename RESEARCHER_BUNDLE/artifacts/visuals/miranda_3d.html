@@ -223,8 +223,8 @@
       projected.sort((a, b) => a.z - b.z);
 
       // Draw edges
-      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+      ctx.lineWidth = 2;
       for (const [i, j] of edges) {
         if (i >= items.length || j >= items.length) continue;
         const a = items[i], b = items[j];

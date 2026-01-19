@@ -194,8 +194,8 @@
       ctx.clearRect(0, 0, width, height);
 
       // Draw edges
-      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+      ctx.lineWidth = 2;
       for (const [i, j] of edges) {
         if (i >= items.length || j >= items.length) continue;
         const a = items[i], b = items[j];

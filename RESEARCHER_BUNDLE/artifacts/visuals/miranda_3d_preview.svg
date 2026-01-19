@@ -93,7 +93,7 @@
   </g>
 
   <!-- Connecting lines (perspective) -->
-  <g stroke="rgba(255,255,255,0.12)" stroke-width="1" fill="none">
+  <g stroke="rgba(255,255,255,0.6)" stroke-width="2" fill="none">
     <line x1="200" y1="180" x2="350" y2="150"/>
     <line x1="350" y1="150" x2="450" y2="200"/>
     <line x1="520" y1="160" x2="450" y2="200"/>

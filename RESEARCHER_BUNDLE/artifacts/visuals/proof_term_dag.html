@@ -96,8 +96,7 @@
     }
     .node:hover { filter: brightness(1.2); box-shadow: 0 0 10px rgba(255,255,255,0.2); }
     .node.app { background: #3b82f6; border-radius: 6px; }
-    .node.lam { background: #8b5cf6; transform: rotate(45deg); padding: 6px 10px; }
-    .node.lam span { display: block; transform: rotate(-45deg); }
+    .node.lam { background: #8b5cf6; border-radius: 6px; border: 2px solid #a78bfa; }
     .node.var { background: #22c55e; border-radius: 50%; min-width: 60px; }
     .node.const { background: #f59e0b; }
     .node.eq { background: #06b6d4; }
@@ -150,7 +149,7 @@
     #legend .item { display: flex; align-items: center; gap: 6px; font-size: 11px; }
     #legend .dot { width: 14px; height: 14px; }
     #legend .dot.rect { border-radius: 3px; }
-    #legend .dot.diamond { transform: rotate(45deg); border-radius: 2px; }
+    #legend .dot.lam { border-radius: 3px; border: 2px solid #a78bfa; }
     #legend .dot.circle { border-radius: 50%; }
   </style>
 </head>
@@ -187,7 +186,7 @@
   </div>
   <div id="legend">
     <div class="item"><div class="dot rect" style="background:#3b82f6"></div> App</div>
-    <div class="item"><div class="dot diamond" style="background:#8b5cf6"></div> Lambda</div>
+    <div class="item"><div class="dot lam" style="background:#8b5cf6"></div> Lambda</div>
     <div class="item"><div class="dot circle" style="background:#22c55e"></div> Var</div>
     <div class="item"><div class="dot rect" style="background:#f59e0b"></div> Const</div>
     <div class="item"><div class="dot rect" style="background:#ec4899"></div> Constructor</div>
@@ -297,11 +296,7 @@
         const pos = positions[n.id];
         const div = document.createElement('div');
         div.className = 'node ' + n.type;
-        if (n.type === 'lam') {
-          div.innerHTML = `<span>${n.label}</span>`;
-        } else {
-          div.textContent = n.label;
-        }
+        div.textContent = n.label;
         div.style.left = pos.x + 'px';
         div.style.top = pos.y + 'px';
         div.style.width = nodeW + 'px';
