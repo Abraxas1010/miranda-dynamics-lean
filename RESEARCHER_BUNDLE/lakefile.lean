@@ -22,7 +22,9 @@ require batteries from git
 
 @[default_target]
 lean_lib «HeytingLean» where
-  roots := #[`HeytingLean.MirandaDynamics]
+  -- Build the umbrella `HeytingLean` module, which imports the MirandaDynamics spine and pulls
+  -- in any cross-namespace dependencies (e.g. `HeytingLean.Bridges.*`) through normal imports.
+  roots := #[`HeytingLean]
 
 -- Demo executables
 lean_exe miranda_dynamics_demo where

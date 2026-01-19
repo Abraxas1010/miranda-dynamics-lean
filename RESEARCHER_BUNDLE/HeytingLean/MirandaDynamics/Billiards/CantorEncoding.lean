@@ -246,8 +246,8 @@ theorem headLeft_nonneg (k : ℤ) : 0 ≤ headLeft k := by
   · have hs : headScale k ≤ (1 / 3 : ℝ) := headScale_le_one_third k
     have hs' : 2 * headScale k ≤ (2 / 3 : ℝ) := by nlinarith
     have : (1 / 3 : ℝ) ≤ headLeft k := by
-      -- `1/3 = 1 - 2/3 ≤ 1 - 2*headScale k = headLeft k`.
-      have : 1 - (2 / 3 : ℝ) ≤ 1 - 2 * headScale k := sub_le_sub_left hs' (1 : ℝ)
+      -- From `2*headScale k ≤ 2/3`, rearrange to `1/3 ≤ 1 - 2*headScale k = headLeft k`.
+      have : (1 / 3 : ℝ) ≤ 1 - 2 * headScale k := by nlinarith [hs']
       simpa [headLeft, hk] using this
     exact le_trans (by norm_num) this
 

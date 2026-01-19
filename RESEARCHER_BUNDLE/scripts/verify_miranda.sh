@@ -6,28 +6,20 @@ echo ""
 
 cd "$(dirname "$0")/.."
 
-# Check for sorry
-echo "Checking for sorry..."
-if grep -rn "sorry" HeytingLean/MirandaDynamics/ HeytingLean/Bridges/ HeytingLean/Formal/ 2>/dev/null; then
-    echo "ERROR: Found sorry in codebase"
-    exit 1
-fi
-echo "✓ No sorry found"
+ROOTS=(HeytingLean/MirandaDynamics HeytingLean/Bridges HeytingLean/Formal HeytingLean/Tests)
 
-# Check for admit
-echo "Checking for admit..."
-if grep -rn "admit" HeytingLean/MirandaDynamics/ HeytingLean/Bridges/ HeytingLean/Formal/ 2>/dev/null; then
-    echo "ERROR: Found admit in codebase"
-    exit 1
+echo "Checking for sorry/admit..."
+if rg -n --type lean -S "\\b(sorry|admit)\\b" "${ROOTS[@]}" 2>/dev/null; then
+  echo "ERROR: Found sorry/admit in codebase"
+  exit 1
 fi
-echo "✓ No admit found"
+echo "✓ No sorry/admit found"
 
-# Check for axiom (warning only)
-echo "Checking for axiom declarations..."
-if grep -rn "^axiom " HeytingLean/MirandaDynamics/ HeytingLean/Bridges/ HeytingLean/Formal/ 2>/dev/null; then
-    echo "WARNING: Found axiom declarations (check if intentional)"
+echo "Checking for axiom declarations (warning only)..."
+if rg -n --type lean -S "^axiom\\b" "${ROOTS[@]}" 2>/dev/null; then
+  echo "WARNING: Found axiom declarations (check if intentional)"
 else
-    echo "✓ No axiom declarations found"
+  echo "✓ No axiom declarations found"
 fi
 
 # Build
@@ -35,6 +27,11 @@ echo ""
 echo "Building project..."
 lake build --wfail
 echo "✓ Build successful"
+
+echo ""
+echo "Building tests (MirandaDynamics AllSanity)..."
+lake build --wfail HeytingLean.Tests.MirandaDynamics.AllSanity
+echo "✓ Tests build successful"
 
 # Count files
 echo ""

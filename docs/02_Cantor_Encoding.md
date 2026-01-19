@@ -65,4 +65,4 @@ In Miranda-Ramos billiard construction:
 
 ## References
 
-- Miranda, E., & Ramos, D. (2025). *Classical billiards can compute*. arXiv:2512.19156, Section 3
+- Miranda, E., & Ramos, I. (2025). *Classical billiards can compute*. arXiv:2512.19156, Section 3

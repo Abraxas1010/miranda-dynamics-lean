@@ -11,13 +11,14 @@ from a termination question into an orbit structure question.
 ## The Main Theorem
 
 ```lean
-theorem reachesPeriod2_iff_halts (tm : TuringMachine) (cfg : Config) :
-    tm.reachesPeriod2 cfg ↔ tm.halts cfg
+-- Main mechanized statement (Mathlib’s partial-recursion halting model):
+theorem reachesPeriod2_iff_halts (n : Nat) (c : Nat.Partrec.Code) :
+    ReachesPeriod2 n c ↔ Undecidability.Halting.Halts n c
 ```
 
 **Interpretation**:
-- `halts`: The machine reaches a halt state
-- `reachesPeriod2`: The configuration reaches a cycle of length 2
+- `Undecidability.Halting.Halts n c`: the partial-recursion code `c` halts on input `n`
+- `ReachesPeriod2 n c`: the induced dynamical system reaches a 2-cycle
 
 ## Why Period-2?
 
@@ -70,5 +71,5 @@ If detecting property P reduces to detecting halting, P is undecidable.
 
 ## References
 
-- Miranda, E., & Ramos, D. (2025). *Classical billiards can compute*. Section 4
+- Miranda, E., & Ramos, I. (2025). *Classical billiards can compute*. Section 4
 - Cardona, R., et al. (2021). *Turing complete Euler flows*. Section 2

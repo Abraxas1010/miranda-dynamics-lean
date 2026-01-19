@@ -8,8 +8,9 @@
 ---
 
 <sub>
-<strong>Notice of Proprietary Information</strong><br>
-This document outlines foundational concepts and methodologies developed during internal research and development at Apoth3osis. To protect our intellectual property and adhere to client confidentiality agreements, the code, architectural details, and performance metrics presented herein may be simplified, redacted, or presented for illustrative purposes only. This paper is intended to share our conceptual approach and does not represent the full complexity, scope, or performance of our production-level systems. The complete implementation and its derivatives remain proprietary.
+<strong>License Notice</strong><br>
+This repository is released under the MIT License (see <code>LICENSE</code>). Any narrative content
+and examples are provided “as is” for clarity and may be illustrative.
 </sub>
 
 ---
@@ -43,11 +44,11 @@ We humbly thank the collective intelligence of humanity for providing the techno
 
 | Paper | Authors | Year | DOI/arXiv |
 |-------|---------|------|-----------|
-| **"Classical billiards can compute"** | Eva Miranda, Daniel Ramos | 2025 | [arXiv:2512.19156](https://arxiv.org/abs/2512.19156) |
+| **"Classical billiards can compute"** | Eva Miranda, Isaac Ramos | 2025 | [arXiv:2512.19156](https://arxiv.org/abs/2512.19156) |
 | **"Topological Kleene Field Theories as a model of computation"** | Ángel González-Prieto, Eva Miranda, Daniel Peralta-Salas | 2025 | [arXiv:2503.16100](https://arxiv.org/abs/2503.16100) |
 | **"Constructing Turing complete Euler flows in dimension 3"** | Robert Cardona, Eva Miranda, Daniel Peralta-Salas, Francisco Presas | 2021 | [PNAS 10.1073/pnas.2026818118](https://doi.org/10.1073/pnas.2026818118) |
-| **"Turing complete Navier-Stokes steady states via cosymplectic geometry"** | Sophie Dyhr, Ángel González-Prieto, Eva Miranda, Daniel Peralta-Salas | 2025 | [arXiv:2507.07696](https://arxiv.org/abs/2507.07696) |
-| **"Universality of Euler flows and flexibility of Reeb embeddings"** | Robert Cardona, Eva Miranda, Daniel Peralta-Salas, Francisco Presas | 2019 | [arXiv:1911.01963](https://arxiv.org/abs/1911.01963) |
+| **"Turing complete Navier-Stokes steady states via cosymplectic geometry"** | Søren Dyhr, Ángel González-Prieto, Eva Miranda, Daniel Peralta-Salas | 2025 | [arXiv:2507.07696](https://arxiv.org/abs/2507.07696) |
+| **"Universality of Euler flows and flexibility of Reeb embeddings"** | Robert Cardona, Eva Miranda, Daniel Peralta-Salas, Francisco Presas | 2019 (arXiv; published 2023) | [arXiv:1911.01963](https://arxiv.org/abs/1911.01963) |
 
 ---
 
@@ -134,8 +135,9 @@ Maps bi-infinite binary Turing machine tapes to the ternary Cantor set, preservi
 ### 2. Halting ↔ Periodic Orbit
 
 ```lean
-theorem reachesPeriod2_iff_halts (tm : TuringMachine) (cfg : Config) :
-    tm.reachesPeriod2 cfg ↔ tm.halts cfg
+-- Main mechanized statement (Mathlib’s partial-recursion halting model):
+theorem reachesPeriod2_iff_halts (n : Nat) (c : Nat.Partrec.Code) :
+    ReachesPeriod2 n c ↔ Undecidability.Halting.Halts n c
 ```
 
 A Turing machine halts if and only if its corresponding dynamical system reaches a period-2 orbit. This is the key bridge between computation and dynamics.
@@ -207,10 +209,7 @@ Explore the proof structure through interactive visualizations:
 
 ```bash
 cd RESEARCHER_BUNDLE
-lake build --wfail
-
-# Verify zero sorries
-grep -r "sorry" HeytingLean/MirandaDynamics/ && echo "FAIL: sorries found" || echo "PASS: no sorries"
+./scripts/verify_miranda.sh
 ```
 
 ---
@@ -245,7 +244,7 @@ The following aspects are actively being formalized (see `WIP/` directory):
 
 ### Primary Sources (Miranda et al.)
 
-1. Miranda, E., & Ramos, D. (2025). *Classical billiards can compute*. arXiv:2512.19156
+1. Miranda, E., & Ramos, I. (2025). *Classical billiards can compute*. arXiv:2512.19156
 2. González-Prieto, Á., Miranda, E., & Peralta-Salas, D. (2025). *Topological Kleene Field Theories as a model of computation*. arXiv:2503.16100
 3. Cardona, R., Miranda, E., Peralta-Salas, D., & Presas, F. (2021). *Constructing Turing complete Euler flows in dimension 3*. PNAS, 118(19).
 4. Dyhr, S., González-Prieto, Á., Miranda, E., & Peralta-Salas, D. (2025). *Turing complete Navier-Stokes steady states via cosymplectic geometry*. arXiv:2507.07696

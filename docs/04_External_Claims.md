@@ -15,19 +15,20 @@ would require substantial additional machinery (contact geometry, PDEs, etc.).
 External claims are represented as **type structures**, not axioms:
 
 ```lean
-structure BilliardsComputesClaim where
-  /-- The billiard table construction from Miranda-Ramos -/
-  table : BilliardTable
-  /-- Encoding function from TM configs to billiard states -/
-  encode : Config → BilliardState
-  /-- The encoding is injective -/
-  encode_injective : Function.Injective encode
-  /-- Steps correspond -/
-  step_corresponds : ∀ cfg, billiardStep (encode cfg) = encode (tmStep cfg)
+-- Current mechanized interface (see `RESEARCHER_BUNDLE/HeytingLean/MirandaDynamics/External/Claims.lean`):
+--
+-- A named wrapper for “billiards can compute” used only through an undecidability reduction.
+structure BilliardsComputesClaim (β : Type u) [Primcodable β] (n : ℕ) (Periodic : β → Prop) : Type (u + 1) where
+  haltingToPeriodic : HaltingToPredicate (β := β) n Periodic
 ```
 
 **Key principle**: No `axiom` declarations. The claim is a **type** that can
 be instantiated if someone provides the geometric proofs.
+
+**Note:** earlier versions of this document used a more “geometric” schematic interface
+(`table`, `encode`, `step_corresponds`, …). The current codebase keeps the boundary *minimal*:
+it only assumes the ingredient actually consumed downstream—an explicit many-one reduction from
+halting to a physical predicate—so that the kernel story stays clean while remaining usable.
 
 ## Current Claims
 
@@ -58,8 +59,7 @@ Theorems can depend on claims explicitly:
 
 ```lean
 theorem not_computable_of_billiardsComputes
-    (claim : BilliardsComputesClaim) (P : ℕ → Prop)
-    (hred : ReducesToBilliards claim P) : ¬Computable P := ...
+    (claim : BilliardsComputesClaim β n Periodic) : ¬ComputablePred Periodic := ...
 ```
 
 The dependency on `claim` is visible in the type signature.

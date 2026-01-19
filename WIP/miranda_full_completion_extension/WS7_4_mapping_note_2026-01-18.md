@@ -5,7 +5,7 @@ paper’s *explicit* encoding maps and identifying what can be mechanized next i
 proving the full geometric billiard-map realization.
 
 Primary source:
-- Eva Miranda, Daniel Ramos, “Classical billiards can compute” (arXiv:2512.19156, Dec 2025):
+- Eva Miranda, Isaac Ramos, “Classical billiards can compute” (arXiv:2512.19156, Dec 2025):
   - https://arxiv.org/abs/2512.19156
   - HTML mirror used for quick scanning: https://ar5iv.labs.arxiv.org/html/2512.19156
 
