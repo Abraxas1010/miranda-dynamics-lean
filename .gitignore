@@ -5,3 +5,6 @@ lake-packages/
 .DS_Store
 *~
 .cache/
+
+# Private notes
+WIP/
