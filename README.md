@@ -164,12 +164,40 @@ If a predicate reduces to an uncomputable one, it is itself uncomputable—enabl
 
 Explore the proof structure through interactive visualizations:
 
-| Visualization | Description | Link |
-|--------------|-------------|------|
-| **2D UMAP Proof Space** | Semantic clustering of 65+ theorems by module family | [View →](https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/miranda_2d.html) |
-| **3D UMAP Proof Space** | Three-dimensional exploration with auto-rotation | [View →](https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/miranda_3d.html) |
-| **Tactic Flow Graphs** | Step-by-step visualization of proof tactics | [View →](https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/tactic_flow.html) |
-| **Proof Term DAGs** | Lambda calculus AST structure of proof terms | [View →](https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/proof_term_dag.html) |
+<table>
+<tr>
+<td align="center" width="50%">
+<a href="https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/miranda_2d.html">
+<img src="RESEARCHER_BUNDLE/artifacts/visuals/miranda_2d_preview.svg" alt="2D UMAP Preview" width="100%"/>
+</a>
+<br><strong>2D UMAP Proof Space</strong><br>
+<sub>Semantic clustering of 65+ theorems by module family</sub>
+</td>
+<td align="center" width="50%">
+<a href="https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/miranda_3d.html">
+<img src="RESEARCHER_BUNDLE/artifacts/visuals/miranda_3d_preview.svg" alt="3D UMAP Preview" width="100%"/>
+</a>
+<br><strong>3D UMAP Proof Space</strong><br>
+<sub>Three-dimensional exploration with auto-rotation</sub>
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<a href="https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/tactic_flow.html">
+<img src="RESEARCHER_BUNDLE/artifacts/visuals/tactic_flow_preview.svg" alt="Tactic Flow Preview" width="100%"/>
+</a>
+<br><strong>Tactic Flow Graphs</strong><br>
+<sub>Step-by-step visualization of proof tactics</sub>
+</td>
+<td align="center" width="50%">
+<a href="https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/proof_term_dag.html">
+<img src="RESEARCHER_BUNDLE/artifacts/visuals/proof_term_dag_preview.svg" alt="Proof Term DAG Preview" width="100%"/>
+</a>
+<br><strong>Proof Term DAGs</strong><br>
+<sub>Lambda calculus AST structure of proof terms</sub>
+</td>
+</tr>
+</table>
 
 **[View All Visualizations →](https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/)**
 
