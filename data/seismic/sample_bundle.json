@@ -1,0 +1,65 @@
+{
+  "metadata": {
+    "generated_at": "2026-01-21T00:00:00Z",
+    "travel_time_model": "ak135",
+    "detection": {
+      "algorithm": "STA/LTA",
+      "sta_sec": 1.0,
+      "lta_sec": 3.0,
+      "snr_threshold": 2.0
+    },
+    "tolerance_sec": 10.0,
+    "stations_queried": ["XX.TEST"],
+    "min_magnitude": 0.0,
+    "days_back": 0,
+    "max_events": 1,
+    "waveform_window": {"pre_sec": 300, "post_sec": 1800}
+  },
+  "stations": [
+    {
+      "network": "XX",
+      "code": "TEST",
+      "latitude": 0.0,
+      "longitude": 0.0,
+      "elevation_m": 0.0
+    }
+  ],
+  "events": [
+    {
+      "id": "synthetic_event",
+      "time": "2026-01-21T00:00:00Z",
+      "time_ms": 0,
+      "latitude": 0.0,
+      "longitude": 0.0,
+      "depth_km": 0.0,
+      "magnitude": 0.0,
+      "magnitude_type": "",
+      "place": "synthetic"
+    }
+  ],
+  "predictions": [
+    {
+      "event_id": "synthetic_event",
+      "station": "XX.TEST",
+      "should_reach": true,
+      "predicted_p_arrival": "2026-01-21T00:00:03Z",
+      "predicted_p_arrival_ms": 3000,
+      "distance_deg": 10.0,
+      "azimuth": 0.0,
+      "model": "ak135",
+      "phase": "P"
+    }
+  ],
+  "waveforms": [
+    {
+      "event_id": "synthetic_event",
+      "station": "XX.TEST",
+      "channel": "BHZ",
+      "location": "00",
+      "start_time": "2026-01-21T00:00:00Z",
+      "start_time_ms": 0,
+      "sample_rate_hz": 1.0,
+      "samples": [0.0, 0.0, 0.0, 2.0, 0.5, 0.0]
+    }
+  ]
+}

@@ -1,0 +1,236 @@
+{
+  "metrics": {
+    "total_pairs": 14,
+    "predicted_reach": 14,
+    "predicted_no_reach": 0,
+    "observed_reach": 13,
+    "observed_no_reach": 1,
+    "true_positive": 13,
+    "true_negative": 0,
+    "false_positive": 0,
+    "false_negative": 1,
+    "accuracy": 0.9285714285714286,
+    "timing_error_mean_sec": -1.4803846153846152,
+    "timing_error_std_sec": 5.455605607481051,
+    "timing_abs_error_mean_sec": 4.267,
+    "timing_abs_error_std_sec": 3.7078136622336015,
+    "timing_abs_error_max_sec": 10.783,
+    "false_negative_rate": 0.07142857142857142,
+    "false_positive_rate": null
+  },
+  "metadata": {
+    "days_back": 30,
+    "detection": {
+      "algorithm": "STA/LTA",
+      "lta_sec": 20,
+      "snr_threshold": 3,
+      "sta_sec": 1
+    },
+    "generated_at": "2026-01-21T02:52:34.642542Z",
+    "max_events": 3,
+    "min_magnitude": 6,
+    "stations_queried": [
+      "IU.ANMO",
+      "IU.HRV",
+      "IU.COLA",
+      "II.BFO",
+      "IU.CTAO",
+      "IU.SNZO"
+    ],
+    "tolerance_sec": 10,
+    "travel_time_model": "ak135",
+    "travel_time_service": "IRISWS traveltime",
+    "waveform_window": {
+      "post_sec": 1800,
+      "pre_sec": 300
+    }
+  },
+  "pairs": [
+    {
+      "did_reach": true,
+      "event_id": "us7000rqjy",
+      "observed_arrival_ms": 1768828547069,
+      "predicted_arrival_ms": 1768828555316,
+      "should_reach": true,
+      "station": "IU.ANMO",
+      "timing_error_ms": -8247,
+      "waveform_ok": true,
+      "within_tolerance": true
+    },
+    {
+      "error": "GeoCSV: missing header",
+      "event_id": "us7000rqjy",
+      "predicted_arrival_ms": 1768828679986,
+      "should_reach": true,
+      "station": "IU.HRV",
+      "waveform_ok": false
+    },
+    {
+      "did_reach": true,
+      "event_id": "us7000rqjy",
+      "observed_arrival_ms": 1768828527069,
+      "predicted_arrival_ms": 1768828534036,
+      "should_reach": true,
+      "station": "IU.COLA",
+      "timing_error_ms": -6967,
+      "waveform_ok": true,
+      "within_tolerance": true
+    },
+    {
+      "did_reach": true,
+      "event_id": "us7000rqjy",
+      "observed_arrival_ms": 1768828801069,
+      "predicted_arrival_ms": 1768828790286,
+      "should_reach": true,
+      "station": "II.BFO",
+      "timing_error_ms": 10783,
+      "waveform_ok": true,
+      "within_tolerance": false
+    },
+    {
+      "did_reach": true,
+      "event_id": "us7000rqjy",
+      "observed_arrival_ms": 1768828031869,
+      "predicted_arrival_ms": 1768828040556,
+      "should_reach": true,
+      "station": "IU.CTAO",
+      "timing_error_ms": -8687,
+      "waveform_ok": true,
+      "within_tolerance": true
+    },
+    {
+      "did_reach": true,
+      "event_id": "us7000rqjy",
+      "observed_arrival_ms": 1768828006744,
+      "predicted_arrival_ms": 1768828005226,
+      "should_reach": true,
+      "station": "IU.SNZO",
+      "timing_error_ms": 1518,
+      "waveform_ok": true,
+      "within_tolerance": true
+    },
+    {
+      "did_reach": true,
+      "event_id": "us7000rq0d",
+      "observed_arrival_ms": 1768534214769,
+      "predicted_arrival_ms": 1768534211529,
+      "should_reach": true,
+      "station": "IU.ANMO",
+      "timing_error_ms": 3240,
+      "waveform_ok": true,
+      "within_tolerance": true
+    },
+    {
+      "error": "GeoCSV: missing header",
+      "event_id": "us7000rq0d",
+      "predicted_arrival_ms": 1768534412469,
+      "should_reach": true,
+      "station": "IU.HRV",
+      "waveform_ok": false
+    },
+    {
+      "did_reach": true,
+      "event_id": "us7000rq0d",
+      "observed_arrival_ms": 1768534266669,
+      "predicted_arrival_ms": 1768534268159,
+      "should_reach": true,
+      "station": "IU.COLA",
+      "timing_error_ms": -1490,
+      "waveform_ok": true,
+      "within_tolerance": true
+    },
+    {
+      "error": "GeoCSV: missing header",
+      "event_id": "us7000rq0d",
+      "predicted_arrival_ms": 1768534685649,
+      "should_reach": true,
+      "station": "II.BFO",
+      "waveform_ok": false
+    },
+    {
+      "did_reach": true,
+      "event_id": "us7000rq0d",
+      "observed_arrival_ms": 1768534779269,
+      "predicted_arrival_ms": 1768534781589,
+      "should_reach": true,
+      "station": "IU.CTAO",
+      "timing_error_ms": -2320,
+      "waveform_ok": true,
+      "within_tolerance": true
+    },
+    {
+      "did_reach": false,
+      "event_id": "us7000rq0d",
+      "observed_arrival_ms": null,
+      "predicted_arrival_ms": 1768534774249,
+      "should_reach": true,
+      "station": "IU.SNZO",
+      "timing_error_ms": null,
+      "waveform_ok": true,
+      "within_tolerance": false
+    },
+    {
+      "did_reach": true,
+      "event_id": "us7000rpcg",
+      "observed_arrival_ms": 1768290349519,
+      "predicted_arrival_ms": 1768290347865,
+      "should_reach": true,
+      "station": "IU.ANMO",
+      "timing_error_ms": 1654,
+      "waveform_ok": true,
+      "within_tolerance": true
+    },
+    {
+      "error": "GeoCSV: missing header",
+      "event_id": "us7000rpcg",
+      "predicted_arrival_ms": 1768290404395,
+      "should_reach": true,
+      "station": "IU.HRV",
+      "waveform_ok": false
+    },
+    {
+      "did_reach": true,
+      "event_id": "us7000rpcg",
+      "observed_arrival_ms": 1768290086319,
+      "predicted_arrival_ms": 1768290095445,
+      "should_reach": true,
+      "station": "IU.COLA",
+      "timing_error_ms": -9126,
+      "waveform_ok": true,
+      "within_tolerance": true
+    },
+    {
+      "did_reach": true,
+      "event_id": "us7000rpcg",
+      "observed_arrival_ms": 1768290381369,
+      "predicted_arrival_ms": 1768290380835,
+      "should_reach": true,
+      "station": "II.BFO",
+      "timing_error_ms": 534,
+      "waveform_ok": true,
+      "within_tolerance": true
+    },
+    {
+      "did_reach": true,
+      "event_id": "us7000rpcg",
+      "observed_arrival_ms": 1768290281494,
+      "predicted_arrival_ms": 1768290282015,
+      "should_reach": true,
+      "station": "IU.CTAO",
+      "timing_error_ms": -521,
+      "waveform_ok": true,
+      "within_tolerance": true
+    },
+    {
+      "did_reach": true,
+      "event_id": "us7000rpcg",
+      "observed_arrival_ms": 1768290418619,
+      "predicted_arrival_ms": 1768290418235,
+      "should_reach": true,
+      "station": "IU.SNZO",
+      "timing_error_ms": 384,
+      "waveform_ok": true,
+      "within_tolerance": true
+    }
+  ]
+}

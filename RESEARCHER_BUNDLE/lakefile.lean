@@ -41,3 +41,7 @@ lean_exe miranda_discrete_demo where
 
 lean_exe miranda_partialflow_demo where
   root := `HeytingLean.MirandaDynamics.Dynamics.PartialFlowDemoMain
+
+-- Seismic validation demo (observation-first grounding)
+lean_exe seismic_validate_demo where
+  root := `HeytingLean.CLI.SeismicValidateMain

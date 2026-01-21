@@ -10,6 +10,7 @@ import HeytingLean.MirandaDynamics.FixedPoint.PeriodicNucleus
 import HeytingLean.MirandaDynamics.Billiards.CantorEncoding
 import HeytingLean.MirandaDynamics.Billiards.CantorNucleus
 import HeytingLean.MirandaDynamics.Billiards.CantorTapeUpdate
+import HeytingLean.MirandaDynamics.Billiard
 import HeytingLean.MirandaDynamics.Billiards.SpecularReflection
 import HeytingLean.MirandaDynamics.Billiards.Geometry
 import HeytingLean.MirandaDynamics.Billiards.UnitSquare
@@ -39,6 +40,7 @@ import HeytingLean.MirandaDynamics.Undecidability.Transfers
 import HeytingLean.MirandaDynamics.External.Interfaces
 import HeytingLean.MirandaDynamics.External.Claims
 import HeytingLean.MirandaDynamics.External.Consequences
+import HeytingLean.MirandaDynamics.Seismic
 import HeytingLean.MirandaDynamics.Discrete.HaltingToPeriodic
 import HeytingLean.MirandaDynamics.Discrete.HaltSys
 import HeytingLean.MirandaDynamics.Discrete.GeneralizedShiftBridge

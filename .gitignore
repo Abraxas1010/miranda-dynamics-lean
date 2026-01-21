@@ -8,3 +8,27 @@ lake-packages/
 
 # Private notes
 WIP/
+
+# Seismic data (large/transient; can be refetched)
+data/seismic/cache/
+data/seismic/validation_bundle.json
+data/seismic/waveforms/
+
+# Seismic results (can be regenerated)
+results/seismic_validation/*.png
+
+# Expanded validation outputs are large (raw bundles); keep only aggregate summaries.
+results/seismic_validation/*/
+!results/seismic_validation/expanded_comparison.md
+!results/seismic_validation/all_results.json
+
+# Billiard calibration artifacts (generated)
+data/billiard/calibration_results.json
+data/seismic/calibrated_params.json
+
+# Track a small fixture + key WIP notes for reproducibility
+!data/seismic/sample_bundle.json
+!data/seismic/realistic_fixture.json
+!WIP/
+!WIP/seismic_validation_results.md
+!WIP/seismic_evidence_mapping.md

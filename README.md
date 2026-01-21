@@ -214,6 +214,58 @@ cd RESEARCHER_BUNDLE
 
 ---
 
+## Seismic Validation
+
+This repo includes an observation-first “physical grounding” demo using real seismic waveforms:
+
+- Data acquisition bridge: `scripts/seismic_bridge.py` (USGS GeoJSON + IRIS FDSN Station/Dataselect +
+  IRISWS traveltime).
+- Offline Lean validator: `seismic_validate_demo` (STA/LTA arrival detection + predicted-vs-observed
+  comparison).
+
+### Quick Start
+
+```bash
+# Run with bundled fixture (no network required)
+cd RESEARCHER_BUNDLE
+lake build --wfail seismic_validate_demo
+lake exe seismic_validate_demo
+
+# Fetch real data bundle (network required; cached under data/seismic/cache/)
+cd ..
+python3 scripts/seismic_bridge.py \
+  --stations IU.ANMO,IU.HRV,IU.COLA,II.BFO,IU.CTAO,IU.SNZO \
+  --min-magnitude 6.0 \
+  --days-back 30 \
+  --max-events 3 \
+  --output data/seismic/validation_bundle.json
+
+# Validate in Lean (offline)
+cd RESEARCHER_BUNDLE
+lake exe seismic_validate_demo -- ../data/seismic/validation_bundle.json > ../results/seismic_validation/lean_output.json
+cd ..
+
+# Generate evidence artifacts
+python3 scripts/generate_validation_report.py \
+  --bundle data/seismic/validation_bundle.json \
+  --lean-output results/seismic_validation/lean_output.json \
+  --output-dir results/seismic_validation/
+```
+
+### Latest Results (2026-01-21)
+
+| Metric | Value |
+|--------|-------|
+| Accuracy | 92.86% |
+| Mean \|predicted − observed\| (true positives) | 4.3 s |
+| Events evaluated | 3 |
+| Station-event pairs | 14 |
+
+See:
+- `data/seismic/PROVENANCE.md` (data sources + reproducibility)
+- `results/seismic_validation/validation_report.json` (machine-readable)
+- `results/seismic_validation/validation_summary.md` (human-readable)
+
 ## The Miranda Computation Thesis
 
 Professor Miranda's research program establishes a remarkable thesis:
