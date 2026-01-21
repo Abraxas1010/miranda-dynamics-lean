@@ -8,11 +8,26 @@ let viewerInitialized = false;
 export async function initGlobe(containerId) {
   try {
     // Completely disable Cesium ion to avoid 401 errors
-    Cesium.Ion.defaultAccessToken = undefined;
+    Cesium.Ion.defaultAccessToken = '';
 
-    // Create viewer with NO default imagery (we'll add our own)
+    // Suppress ion-related errors
+    const originalError = console.error;
+    console.error = function(...args) {
+      if (args[0] && typeof args[0] === 'object' && args[0].statusCode === 401) {
+        return; // Suppress 401 errors from ion
+      }
+      originalError.apply(console, args);
+    };
+
+    // Create OpenStreetMap imagery provider first
+    const osmProvider = new Cesium.OpenStreetMapImageryProvider({
+      url: 'https://tile.openstreetmap.org/'
+    });
+
+    // Create viewer with explicit non-ion providers
     const viewer = new Cesium.Viewer(containerId, {
-      imageryProvider: false,  // No default imagery
+      imageryProvider: osmProvider,           // Use OSM directly
+      terrainProvider: new Cesium.EllipsoidTerrainProvider(), // No terrain (offline)
       baseLayerPicker: false,
       animation: false,
       timeline: false,
@@ -24,22 +39,20 @@ export async function initGlobe(containerId) {
       infoBox: false,
       selectionIndicator: false,
       creditContainer: document.createElement('div'),
-      skyBox: false,           // Disable skybox (uses ion)
-      skyAtmosphere: false,    // Disable atmosphere (can cause issues)
+      skyBox: false,
+      skyAtmosphere: false,
+      shadows: false,
+      terrainShadows: Cesium.ShadowMode.DISABLED,
+      requestRenderMode: false,  // Continuous rendering for animation
       contextOptions: {
         webgl: {
           alpha: false,
           antialias: true,
-          preserveDrawingBuffer: true
+          preserveDrawingBuffer: true,
+          powerPreference: 'high-performance'
         }
       }
     });
-
-    // Add OpenStreetMap imagery (no authentication needed)
-    const osmProvider = new Cesium.OpenStreetMapImageryProvider({
-      url: 'https://tile.openstreetmap.org/'
-    });
-    viewer.imageryLayers.addImageryProvider(osmProvider);
 
     // Set initial camera position - fixed view looking at Pacific
     viewer.camera.setView({
