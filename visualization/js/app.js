@@ -7,9 +7,9 @@ import { showHeytingGapModal, hideHeytingGapModal } from './heyting-gap.js';
 // Application State
 const state = {
   currentEventId: 'us7000rqjy',
-  currentTime: 0,        // seconds since earthquake
-  isPlaying: false,
-  playbackSpeed: 5,
+  currentTime: 100,      // Start at 100s so waves visible immediately
+  isPlaying: true,       // Auto-play on load
+  playbackSpeed: 10,     // Faster default speed
   maxTime: 1200,         // 20 minutes max
   gapModalShown: false,  // Only show once per session
   viewer: null           // Cesium viewer
@@ -48,6 +48,11 @@ async function init() {
 
     // Setup event listeners
     setupEventListeners();
+
+    // Set initial UI state (auto-playing)
+    playPauseBtn.textContent = 'Pause';
+    playPauseBtn.classList.add('playing');
+    speedSelect.value = '10';
 
     // Start animation loop
     lastTimestamp = performance.now();

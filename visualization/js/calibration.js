@@ -33,8 +33,9 @@ export function initCalibrationChart(canvasId, calibrationData) {
       }]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: false,
+      maintainAspectRatio: true,
+      animation: false,
       plugins: {
         legend: {
           display: true,
