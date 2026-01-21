@@ -217,7 +217,8 @@ function getStationColor(result, hasArrived) {
 }
 
 // Generate circle points for a wave front at given radius
-function generateCirclePoints(centerLon, centerLat, radiusMeters, numPoints = 90) {
+// Returns array of [lon, lat, height, lon, lat, height, ...] for Cesium
+function generateCirclePoints(centerLon, centerLat, radiusMeters, numPoints = 90, height = 50000) {
   const points = [];
   const earthRadius = 6371000; // meters
   const angularRadius = radiusMeters / earthRadius; // radians
@@ -236,13 +237,16 @@ function generateCirclePoints(centerLon, centerLat, radiusMeters, numPoints = 90
       Math.cos(angularRadius) - Math.sin(lat1) * Math.sin(lat2)
     );
 
-    points.push(lon2 * 180 / Math.PI, lat2 * 180 / Math.PI);
+    points.push(lon2 * 180 / Math.PI, lat2 * 180 / Math.PI, height);
   }
   return points;
 }
 
 export function updateWaveFronts(viewer, event, currentTime, waveVelocity) {
-  if (!viewer || !viewerInitialized) return;
+  if (!viewer || !viewerInitialized) {
+    console.warn('updateWaveFronts: viewer not ready', { viewer: !!viewer, init: viewerInitialized });
+    return;
+  }
 
   try {
     // Remove all existing wave front entities
@@ -277,17 +281,16 @@ export function updateWaveFronts(viewer, event, currentTime, waveVelocity) {
 
     // Create multiple concentric P-wave rings (green) for ripple effect
     if (pWaveRadius > 0 && pWaveRadius < maxRadius) {
-      // Main wave front - bright and thick
-      const mainPoints = generateCirclePoints(event.longitude, event.latitude, pWaveRadius);
+      // Main wave front - bright and thick (elevated to 50km for visibility)
+      const mainPoints = generateCirclePoints(event.longitude, event.latitude, pWaveRadius, 120, 50000);
       pWaveEntities.push(viewer.entities.add({
         polyline: {
-          positions: Cesium.Cartesian3.fromDegreesArray(mainPoints),
+          positions: Cesium.Cartesian3.fromDegreesArrayHeights(mainPoints),
           width: 4,
           material: new Cesium.PolylineGlowMaterialProperty({
             glowPower: 0.3,
             color: Cesium.Color.fromCssColorString('#00ff88')
-          }),
-          clampToGround: true
+          })
         }
       }));
 
@@ -295,14 +298,14 @@ export function updateWaveFronts(viewer, event, currentTime, waveVelocity) {
       for (let i = 1; i <= 3; i++) {
         const trailRadius = pWaveRadius - (i * 200000); // 200km spacing
         if (trailRadius > 0) {
-          const trailPoints = generateCirclePoints(event.longitude, event.latitude, trailRadius);
+          const trailHeight = 50000 - (i * 5000); // Slightly lower for each trail
+          const trailPoints = generateCirclePoints(event.longitude, event.latitude, trailRadius, 90, trailHeight);
           const alpha = 0.6 - (i * 0.15);
           pWaveEntities.push(viewer.entities.add({
             polyline: {
-              positions: Cesium.Cartesian3.fromDegreesArray(trailPoints),
+              positions: Cesium.Cartesian3.fromDegreesArrayHeights(trailPoints),
               width: 3 - i * 0.5,
-              material: Cesium.Color.fromCssColorString('#00ff88').withAlpha(alpha),
-              clampToGround: true
+              material: Cesium.Color.fromCssColorString('#00ff88').withAlpha(alpha)
             }
           }));
         }
@@ -311,17 +314,16 @@ export function updateWaveFronts(viewer, event, currentTime, waveVelocity) {
 
     // Create multiple concentric S-wave rings (red/orange)
     if (sWaveRadius > 0 && sWaveRadius < maxRadius) {
-      // Main wave front
-      const mainPoints = generateCirclePoints(event.longitude, event.latitude, sWaveRadius);
+      // Main wave front (elevated to 40km - slightly below P-wave)
+      const mainPoints = generateCirclePoints(event.longitude, event.latitude, sWaveRadius, 120, 40000);
       sWaveEntities.push(viewer.entities.add({
         polyline: {
-          positions: Cesium.Cartesian3.fromDegreesArray(mainPoints),
+          positions: Cesium.Cartesian3.fromDegreesArrayHeights(mainPoints),
           width: 3,
           material: new Cesium.PolylineGlowMaterialProperty({
             glowPower: 0.25,
             color: Cesium.Color.fromCssColorString('#ff6644')
-          }),
-          clampToGround: true
+          })
         }
       }));
 
@@ -329,14 +331,14 @@ export function updateWaveFronts(viewer, event, currentTime, waveVelocity) {
       for (let i = 1; i <= 2; i++) {
         const trailRadius = sWaveRadius - (i * 150000);
         if (trailRadius > 0) {
-          const trailPoints = generateCirclePoints(event.longitude, event.latitude, trailRadius);
+          const trailHeight = 40000 - (i * 5000);
+          const trailPoints = generateCirclePoints(event.longitude, event.latitude, trailRadius, 90, trailHeight);
           const alpha = 0.5 - (i * 0.15);
           sWaveEntities.push(viewer.entities.add({
             polyline: {
-              positions: Cesium.Cartesian3.fromDegreesArray(trailPoints),
+              positions: Cesium.Cartesian3.fromDegreesArrayHeights(trailPoints),
               width: 2,
-              material: Cesium.Color.fromCssColorString('#ff6644').withAlpha(alpha),
-              clampToGround: true
+              material: Cesium.Color.fromCssColorString('#ff6644').withAlpha(alpha)
             }
           }));
         }
@@ -345,6 +347,11 @@ export function updateWaveFronts(viewer, event, currentTime, waveVelocity) {
 
     waveFrontEntities.pWave = pWaveEntities;
     waveFrontEntities.sWave = sWaveEntities;
+
+    // Debug: log wave creation
+    if (pWaveEntities.length > 0 || sWaveEntities.length > 0) {
+      console.log(`Waves at T+${currentTime.toFixed(0)}s: P-wave radius=${(pWaveRadius/1000).toFixed(0)}km, S-wave radius=${(sWaveRadius/1000).toFixed(0)}km`);
+    }
 
     // Update station colors based on wave arrival
     Object.entries(stationEntities).forEach(([code, entity]) => {
