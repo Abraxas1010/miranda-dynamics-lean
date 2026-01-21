@@ -115,6 +115,26 @@ body {
 #cesium-container {
   flex: 1;
   min-height: 400px;
+  max-height: calc(100vh - 340px);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Prevent Cesium canvas from growing beyond container */
+#cesium-container canvas {
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+/* Fix Cesium widget sizing */
+.cesium-viewer,
+.cesium-viewer-cesiumWidgetContainer,
+.cesium-widget,
+.cesium-widget canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
 }
 
 /* === Timeline === */

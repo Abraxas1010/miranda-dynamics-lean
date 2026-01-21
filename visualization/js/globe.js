@@ -92,6 +92,21 @@ export async function initGlobe(containerId) {
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
+    // Disable automatic resize detection to prevent growing
+    viewer.useDefaultRenderLoop = true;
+    viewer.resolutionScale = 1.0;
+
+    // Force a single resize to fit container, then stop
+    const container = document.getElementById(containerId);
+    if (container) {
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      viewer.canvas.width = width;
+      viewer.canvas.height = height;
+      viewer.canvas.style.width = width + 'px';
+      viewer.canvas.style.height = height + 'px';
+    }
+
     viewerInitialized = true;
     console.log('Globe initialized successfully');
     return viewer;
