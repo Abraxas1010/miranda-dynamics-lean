@@ -194,6 +194,23 @@ export function addStationMarkers(viewer, stations, results, event) {
 
     console.log(`Added ${stationCount} station markers`);
 
+    // TEST: Add a static ring of points at 1000km radius to verify points work
+    const testRadius = 1000000; // 1000km in meters
+    for (let i = 0; i < 36; i++) {
+      const angle = (i / 36) * 2 * Math.PI;
+      const lat = event.latitude + (testRadius / 111000) * Math.cos(angle);
+      const lon = event.longitude + (testRadius / (111000 * Math.cos(event.latitude * Math.PI / 180))) * Math.sin(angle);
+
+      viewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(lon, lat),
+        point: {
+          pixelSize: 10,
+          color: Cesium.Color.YELLOW
+        }
+      });
+    }
+    console.log('Added static yellow test ring at 1000km');
+
     // Request render update
     viewer.scene.requestRender();
 
