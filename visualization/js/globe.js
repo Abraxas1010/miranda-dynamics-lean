@@ -137,7 +137,7 @@ export function addStationMarkers(viewer, stations, results, event) {
 
     console.log('Adding epicenter at:', event.longitude, event.latitude);
 
-    // Add epicenter (earthquake location) with a visible circle around it
+    // Add epicenter (earthquake location)
     epicenterEntity = viewer.entities.add({
       position: Cesium.Cartesian3.fromDegrees(event.longitude, event.latitude),
       point: {
@@ -145,14 +145,6 @@ export function addStationMarkers(viewer, stations, results, event) {
         color: Cesium.Color.RED,
         outlineColor: Cesium.Color.WHITE,
         outlineWidth: 3
-      },
-      ellipse: {
-        semiMajorAxis: 500000,
-        semiMinorAxis: 500000,
-        material: Cesium.Color.RED.withAlpha(0.3),
-        outline: true,
-        outlineColor: Cesium.Color.RED,
-        outlineWidth: 2
       },
       label: {
         text: `M${event.magnitude} ${event.name}`,
@@ -165,8 +157,6 @@ export function addStationMarkers(viewer, stations, results, event) {
         pixelOffset: new Cesium.Cartesian2(0, -30)
       }
     });
-
-    console.log('Epicenter entity added:', epicenterEntity ? 'success' : 'failed');
 
     // Add station markers
     let stationCount = 0;
@@ -224,6 +214,31 @@ function getStationColor(result, hasArrived) {
   } else {
     return Cesium.Color.fromCssColorString('#ff4444');
   }
+}
+
+// Generate Cartesian3 positions for a circle (for wall entities)
+function generateCirclePositions(centerLon, centerLat, radiusMeters, numPoints = 90) {
+  const positions = [];
+  const earthRadius = 6371000;
+  const angularRadius = radiusMeters / earthRadius;
+
+  for (let i = 0; i <= numPoints; i++) {
+    const bearing = (i / numPoints) * 2 * Math.PI;
+    const lat1 = centerLat * Math.PI / 180;
+    const lon1 = centerLon * Math.PI / 180;
+
+    const lat2 = Math.asin(
+      Math.sin(lat1) * Math.cos(angularRadius) +
+      Math.cos(lat1) * Math.sin(angularRadius) * Math.cos(bearing)
+    );
+    const lon2 = lon1 + Math.atan2(
+      Math.sin(bearing) * Math.sin(angularRadius) * Math.cos(lat1),
+      Math.cos(angularRadius) - Math.sin(lat1) * Math.sin(lat2)
+    );
+
+    positions.push(Cesium.Cartesian3.fromDegrees(lon2 * 180 / Math.PI, lat2 * 180 / Math.PI));
+  }
+  return positions;
 }
 
 // Generate circle points for a wave front at given radius
@@ -289,51 +304,28 @@ export function updateWaveFronts(viewer, event, currentTime, waveVelocity) {
     const pWaveEntities = [];
     const sWaveEntities = [];
 
-    // Create P-wave ring (green) using ellipse with outline only
+    // Create P-wave ring (green) using wall entity for reliable rendering
     if (pWaveRadius > 0 && pWaveRadius < maxRadius) {
+      const pPoints = generateCirclePositions(event.longitude, event.latitude, pWaveRadius, 120);
       pWaveEntities.push(viewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(event.longitude, event.latitude),
-        ellipse: {
-          semiMajorAxis: pWaveRadius,
-          semiMinorAxis: pWaveRadius,
-          fill: false,
-          outline: true,
-          outlineColor: Cesium.Color.LIME,
-          outlineWidth: 4,
-          height: 0
+        wall: {
+          positions: pPoints,
+          minimumHeights: new Array(pPoints.length).fill(0),
+          maximumHeights: new Array(pPoints.length).fill(80000),
+          material: Cesium.Color.LIME.withAlpha(0.8)
         }
       }));
-
-      // Trailing ring
-      const trailRadius = pWaveRadius - 500000;
-      if (trailRadius > 0) {
-        pWaveEntities.push(viewer.entities.add({
-          position: Cesium.Cartesian3.fromDegrees(event.longitude, event.latitude),
-          ellipse: {
-            semiMajorAxis: trailRadius,
-            semiMinorAxis: trailRadius,
-            fill: false,
-            outline: true,
-            outlineColor: Cesium.Color.LIME.withAlpha(0.4),
-            outlineWidth: 2,
-            height: 0
-          }
-        }));
-      }
     }
 
-    // Create S-wave ring (orange/red) using ellipse
+    // Create S-wave ring (orange/red) using wall entity
     if (sWaveRadius > 0 && sWaveRadius < maxRadius) {
+      const sPoints = generateCirclePositions(event.longitude, event.latitude, sWaveRadius, 120);
       sWaveEntities.push(viewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(event.longitude, event.latitude),
-        ellipse: {
-          semiMajorAxis: sWaveRadius,
-          semiMinorAxis: sWaveRadius,
-          fill: false,
-          outline: true,
-          outlineColor: Cesium.Color.ORANGERED,
-          outlineWidth: 3,
-          height: 0
+        wall: {
+          positions: sPoints,
+          minimumHeights: new Array(sPoints.length).fill(0),
+          maximumHeights: new Array(sPoints.length).fill(60000),
+          material: Cesium.Color.ORANGERED.withAlpha(0.8)
         }
       }));
     }
