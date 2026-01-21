@@ -169,6 +169,7 @@ def run_calibration_experiment(
     precision_levels: list[int],
     noise_levels: list[float],
     num_samples: int,
+    trials: int,
 ) -> dict:
     traj = evolve(initial_state, evolution_time)
 
@@ -193,14 +194,26 @@ def run_calibration_experiment(
 
     for precision in precision_levels:
         for noise_std in noise_levels:
-            obs = [observe_positions(s, precision=precision, noise_std=noise_std) for s in sampled]
-            obs_final = obs[-1]["positions"]
+            trial_rms: list[float] = []
+            kept_obs = None
+            for _ in range(max(1, trials)):
+                obs = [observe_positions(s, precision=precision, noise_std=noise_std) for s in sampled]
+                if kept_obs is None:
+                    kept_obs = obs
+                obs_final = obs[-1]["positions"]
+                trial_rms.append(rms_error(true_final, obs_final))
+
+            mean = sum(trial_rms) / len(trial_rms)
+            var = sum((x - mean) ** 2 for x in trial_rms) / len(trial_rms)
+            std = math.sqrt(var) if len(trial_rms) >= 2 else 0.0
             results["calibration_runs"].append(
                 {
                     "precision": precision,
                     "noise_std": noise_std,
-                    "rms_error": rms_error(true_final, obs_final),
-                    "observations": obs,
+                    "trials": int(max(1, trials)),
+                    "rms_error": mean,
+                    "rms_error_std": std,
+                    "observations": kept_obs,
                 }
             )
     return results
@@ -213,6 +226,7 @@ def main() -> int:
     ap.add_argument("--output", default="data/billiard/calibration_results.json")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--num-samples", type=int, default=100)
+    ap.add_argument("--trials", type=int, default=10)
     args = ap.parse_args()
 
     random.seed(args.seed)
@@ -230,6 +244,7 @@ def main() -> int:
         precision_levels=[1, 2, 3, 4, 5],
         noise_levels=[0.0, 0.001, 0.01, 0.1],
         num_samples=max(2, args.num_samples),
+        trials=max(1, args.trials),
     )
 
     out_path = Path(args.output)
@@ -247,4 +262,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
