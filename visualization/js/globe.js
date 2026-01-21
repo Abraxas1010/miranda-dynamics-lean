@@ -137,7 +137,7 @@ export function addStationMarkers(viewer, stations, results, event) {
 
     console.log('Adding epicenter at:', event.longitude, event.latitude);
 
-    // Add epicenter (earthquake location)
+    // Add epicenter (earthquake location) with a visible circle around it
     epicenterEntity = viewer.entities.add({
       position: Cesium.Cartesian3.fromDegrees(event.longitude, event.latitude),
       point: {
@@ -145,6 +145,14 @@ export function addStationMarkers(viewer, stations, results, event) {
         color: Cesium.Color.RED,
         outlineColor: Cesium.Color.WHITE,
         outlineWidth: 3
+      },
+      ellipse: {
+        semiMajorAxis: 500000,
+        semiMinorAxis: 500000,
+        material: Cesium.Color.RED.withAlpha(0.3),
+        outline: true,
+        outlineColor: Cesium.Color.RED,
+        outlineWidth: 2
       },
       label: {
         text: `M${event.magnitude} ${event.name}`,
@@ -157,6 +165,8 @@ export function addStationMarkers(viewer, stations, results, event) {
         pixelOffset: new Cesium.Cartesian2(0, -30)
       }
     });
+
+    console.log('Epicenter entity added:', epicenterEntity ? 'success' : 'failed');
 
     // Add station markers
     let stationCount = 0;
@@ -331,10 +341,8 @@ export function updateWaveFronts(viewer, event, currentTime, waveVelocity) {
     waveFrontEntities.pWave = pWaveEntities;
     waveFrontEntities.sWave = sWaveEntities;
 
-    // Debug: log wave creation
-    if (pWaveEntities.length > 0 || sWaveEntities.length > 0) {
-      console.log(`Waves at T+${currentTime.toFixed(0)}s: P-wave radius=${(pWaveRadius/1000).toFixed(0)}km, S-wave radius=${(sWaveRadius/1000).toFixed(0)}km`);
-    }
+    // Debug: log wave creation with entity count
+    console.log(`Waves at T+${currentTime.toFixed(0)}s: P=${(pWaveRadius/1000).toFixed(0)}km (${pWaveEntities.length} entities), S=${(sWaveRadius/1000).toFixed(0)}km (${sWaveEntities.length} entities), total viewer entities: ${viewer.entities.values.length}`);
 
     // Update station colors based on wave arrival
     Object.entries(stationEntities).forEach(([code, entity]) => {
