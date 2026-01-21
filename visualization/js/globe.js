@@ -304,32 +304,40 @@ export function updateWaveFronts(viewer, event, currentTime, waveVelocity) {
     const pWaveEntities = [];
     const sWaveEntities = [];
 
-    // Create P-wave ring (green) using corridor entity
+    // Create P-wave ring (green) using simple POINTS - we know points work
     if (pWaveRadius > 0 && pWaveRadius < maxRadius) {
-      const pPoints = generateCirclePositions(event.longitude, event.latitude, pWaveRadius, 90);
-      pWaveEntities.push(viewer.entities.add({
-        corridor: {
-          positions: pPoints,
-          width: 50000,
-          material: Cesium.Color.LIME.withAlpha(0.6),
-          height: 1000,
-          extrudedHeight: 100000
-        }
-      }));
+      const numPoints = 60;
+      for (let i = 0; i < numPoints; i++) {
+        const angle = (i / numPoints) * 2 * Math.PI;
+        const lat = event.latitude + (pWaveRadius / 111000) * Math.cos(angle);
+        const lon = event.longitude + (pWaveRadius / (111000 * Math.cos(event.latitude * Math.PI / 180))) * Math.sin(angle);
+
+        pWaveEntities.push(viewer.entities.add({
+          position: Cesium.Cartesian3.fromDegrees(lon, lat),
+          point: {
+            pixelSize: 8,
+            color: Cesium.Color.LIME
+          }
+        }));
+      }
     }
 
-    // Create S-wave ring (orange/red) using corridor entity
+    // Create S-wave ring (orange) using simple POINTS
     if (sWaveRadius > 0 && sWaveRadius < maxRadius) {
-      const sPoints = generateCirclePositions(event.longitude, event.latitude, sWaveRadius, 90);
-      sWaveEntities.push(viewer.entities.add({
-        corridor: {
-          positions: sPoints,
-          width: 40000,
-          material: Cesium.Color.ORANGERED.withAlpha(0.6),
-          height: 1000,
-          extrudedHeight: 80000
-        }
-      }));
+      const numPoints = 50;
+      for (let i = 0; i < numPoints; i++) {
+        const angle = (i / numPoints) * 2 * Math.PI;
+        const lat = event.latitude + (sWaveRadius / 111000) * Math.cos(angle);
+        const lon = event.longitude + (sWaveRadius / (111000 * Math.cos(event.latitude * Math.PI / 180))) * Math.sin(angle);
+
+        sWaveEntities.push(viewer.entities.add({
+          position: Cesium.Cartesian3.fromDegrees(lon, lat),
+          point: {
+            pixelSize: 6,
+            color: Cesium.Color.ORANGE
+          }
+        }));
+      }
     }
 
     waveFrontEntities.pWave = pWaveEntities;
