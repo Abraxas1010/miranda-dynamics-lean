@@ -71,16 +71,10 @@ Then open http://localhost:8000
 - [Chart.js](https://www.chartjs.org/) - Calibration plots
 - No build step required - vanilla JavaScript with ES modules
 
-## Cesium Token Setup
+## No Token Required
 
-**Important**: You need a free Cesium ion access token for the 3D globe to work.
-
-1. Go to https://cesium.com/ion/ and create a free account
-2. Create an access token
-3. Edit `js/globe.js` and replace the placeholder token with your own:
-   ```javascript
-   Cesium.Ion.defaultAccessToken = 'YOUR_TOKEN_HERE';
-   ```
+The visualization uses OpenStreetMap imagery which requires no authentication.
+It works out of the box with no setup needed.
 
 ## Project Structure
 

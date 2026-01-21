@@ -5,23 +5,25 @@ let waveFrontEntities = { pWave: null, sWave: null };
 let epicenterEntity = null;
 
 export async function initGlobe(containerId) {
-  // Initialize Cesium viewer
-  // Note: For production, get a free Cesium ion token at https://cesium.com/ion/
-  // Replace the token below with your own
-  Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYWE1OWUxNy1mMWZiLTQzYjYtYTQ0OS1kMWFjYmFkNjc5YzciLCJpZCI6NTc1MzksImlhdCI6MTYyNzU1MjkzOH0.a1234567890';
+  // Initialize Cesium viewer without requiring Cesium ion token
+  // Uses OpenStreetMap imagery (free, no authentication required)
 
   const viewer = new Cesium.Viewer(containerId, {
-    terrainProvider: await Cesium.createWorldTerrainAsync(),
+    imageryProvider: new Cesium.OpenStreetMapImageryProvider({
+      url: 'https://a.tile.openstreetmap.org/'
+    }),
+    baseLayerPicker: false,
     animation: false,
     timeline: false,
-    baseLayerPicker: false,
     geocoder: false,
     homeButton: false,
     sceneModePicker: false,
     navigationHelpButton: false,
     fullscreenButton: false,
     infoBox: false,
-    selectionIndicator: false
+    selectionIndicator: false,
+    // Use ellipsoid (no terrain) to avoid ion dependency
+    terrainProvider: new Cesium.EllipsoidTerrainProvider()
   });
 
   // Set initial camera position
