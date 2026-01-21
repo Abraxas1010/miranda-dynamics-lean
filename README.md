@@ -8,6 +8,7 @@
 [![Mathlib](https://img.shields.io/badge/Mathlib-latest-purple.svg)](https://github.com/leanprover-community/mathlib4)
 [![Sorry Count](https://img.shields.io/badge/sorry-0-brightgreen.svg)](RESEARCHER_BUNDLE/HeytingLean/MirandaDynamics/)
 [![License](https://img.shields.io/badge/License-Apoth3osis-yellow.svg)](LICENSE.md)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-View_Visualization-00ff88.svg)](https://abraxas1010.github.io/miranda-dynamics-lean/visualization/)
 
 This project provides a **faithful categorical implementation** of Eva Miranda's TKFT framework, demonstrating that her abstract machinery — reaching relations, nucleus operators, Heyting algebras — correctly describes physical observation when instantiated against real-world seismic data.
 
