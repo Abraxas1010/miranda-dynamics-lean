@@ -342,8 +342,8 @@ body {
 
 /* === Billiard Panel === */
 #billiard-canvas {
-  width: 100%;
-  height: 160px;
+  /* Fixed dimensions from HTML attributes - do not override with percentages */
+  max-width: 100%;
   background: var(--bg-primary);
   border-radius: 6px;
   border: 1px solid var(--border-color);
@@ -396,8 +396,8 @@ body {
 
 /* === Calibration Chart === */
 #calibration-chart {
-  width: 100%;
-  height: 140px;
+  /* Fixed dimensions - do not use percentages with Chart.js responsive:false */
+  max-width: 100%;
 }
 
 .calibration-result {
