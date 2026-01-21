@@ -4,6 +4,7 @@ import Std
 
 import HeytingLean.CLI.Certified.Json
 import HeytingLean.MirandaDynamics.Seismic.Validation
+import HeytingLean.MirandaDynamics.Seismic.CategoricalValidation
 
 /-!
 # Seismic validation demo (offline)
@@ -107,6 +108,12 @@ structure Bundle where
   predictionsJson : Json
   waveformsJson : Json
 
+structure ValidationOutput where
+  outJson : Json
+  pairs : Array HeytingLean.MirandaDynamics.Seismic.CategoricalValidation.ValidationPair
+  std : HeytingLean.MirandaDynamics.Seismic.CategoricalValidation.StandardMetrics
+  cat : HeytingLean.MirandaDynamics.Seismic.CategoricalValidation.CategoricalSummary
+
 def parseBundle (j : Json) : Except String Bundle := do
   let metaJson ← match j.getObjVal? "metadata" with
     | .ok v => pure v
@@ -150,7 +157,7 @@ def parseDetectionParams (metaJ : Json) : Except String (Float × Float × Float
 def mkKey (eventId station : String) : String :=
   eventId ++ "|" ++ station
 
-def validateBundle (b : Bundle) : Except String Json := do
+def validateBundle (b : Bundle) : Except String ValidationOutput := do
   let (staSec, ltaSec, thr, tolSec) ← parseDetectionParams b.metaJson
   let tolMs : Int := Int.ofNat (UInt64.toNat ((tolSec * 1000.0).toUInt64))
 
@@ -175,6 +182,7 @@ def validateBundle (b : Bundle) : Except String Json := do
     | _ => throw "waveforms must be an array"
 
   let mut results : Array Json := #[]
+  let mut pairs : Array HeytingLean.MirandaDynamics.Seismic.CategoricalValidation.ValidationPair := #[]
   let mut nTotal : Nat := 0
   let mut nWithWaveform : Nat := 0
   let mut nDetected : Nat := 0
@@ -258,6 +266,19 @@ def validateBundle (b : Bundle) : Except String Json := do
           match obs with
           | none => Json.null
           | some t => Json.num (JsonNumber.fromInt (t - predMs))
+        let timingErr : Option Int :=
+          match obs with
+          | none => none
+          | some t => some (t - predMs)
+        pairs := pairs.push
+          { event_id := eid
+            station := st
+            should_reach := shouldReach
+            did_reach := didReach
+            within_tolerance := withinTol
+            waveform_ok := true
+            timing_error_ms := timingErr
+          }
         results := results.push <|
           Json.mkObj
             [ ("event_id", Json.str eid)
@@ -271,7 +292,9 @@ def validateBundle (b : Bundle) : Except String Json := do
             , ("waveform_ok", Json.bool true)
             ]
 
-  pure <|
+  let std := HeytingLean.MirandaDynamics.Seismic.CategoricalValidation.computeStandardMetrics pairs
+  let cat := HeytingLean.MirandaDynamics.Seismic.CategoricalValidation.summarizeCategorically pairs
+  let outJson :=
     Json.mkObj
       [ ("metadata", b.metaJson)
       , ("stats",
@@ -281,9 +304,14 @@ def validateBundle (b : Bundle) : Except String Json := do
             , ("detected", Json.num (JsonNumber.fromNat nDetected))
             ])
       , ("pairs", Json.arr results)
+      , ("standard_metrics", HeytingLean.MirandaDynamics.Seismic.CategoricalValidation.StandardMetrics.toJson std)
+      , ("categorical_summary", HeytingLean.MirandaDynamics.Seismic.CategoricalValidation.CategoricalSummary.toJson cat)
       ]
 
+  pure { outJson := outJson, pairs := pairs, std := std, cat := cat }
+
 def main (args : List String) : IO UInt32 := do
+  let jsonOnly := args.contains "--json-only"
   let hasPositionalFile := args.any (fun a => !a.startsWith "--")
   let args' ←
     if args.contains "--input" || args.contains "--stdin" || hasPositionalFile then
@@ -307,7 +335,17 @@ def main (args : List String) : IO UInt32 := do
               IO.eprintln e
               return 1
           | .ok out =>
-              IO.println out.compress
+              if jsonOnly then
+                IO.println out.outJson.pretty
+              else
+                IO.println "=== STANDARD VALIDATION METRICS ==="
+                IO.println (HeytingLean.MirandaDynamics.Seismic.CategoricalValidation.formatStandardReport out.std)
+                IO.println ""
+                IO.println "=== CATEGORICAL INTERPRETATION ==="
+                IO.println (HeytingLean.MirandaDynamics.Seismic.CategoricalValidation.generateCategoricalReport out.cat)
+                IO.println ""
+                IO.println "=== JSON OUTPUT ==="
+                IO.println out.outJson.pretty
               return 0
 
 end CLI

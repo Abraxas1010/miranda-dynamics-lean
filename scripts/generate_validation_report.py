@@ -27,6 +27,31 @@ def _mkdirp(path: str) -> None:
     os.makedirs(path, exist_ok=True)
 
 
+def _load_lean_json(path: str) -> dict:
+    """Load Lean output.
+
+    Supports either:
+    - pure JSON output (recommended: run `seismic_validate_demo --json-only ...`), or
+    - mixed human report + a final "=== JSON OUTPUT ===" section.
+    """
+    with open(path, "r", encoding="utf-8") as f:
+        txt = f.read()
+    try:
+        return json.loads(txt)
+    except Exception:
+        marker = "=== JSON OUTPUT ==="
+        idx = txt.rfind(marker)
+        if idx >= 0:
+            tail = txt[idx + len(marker) :]
+            j0 = tail.find("{")
+            if j0 >= 0:
+                return json.loads(tail[j0:])
+        j0 = txt.rfind("{")
+        if j0 >= 0:
+            return json.loads(txt[j0:])
+        raise
+
+
 def _iso(ms: int | None) -> str | None:
     if ms is None:
         return None
@@ -311,8 +336,7 @@ def main() -> int:
 
     with open(args.bundle, "r", encoding="utf-8") as f:
         bundle = json.load(f)
-    with open(args.lean_output, "r", encoding="utf-8") as f:
-        lean_out = json.load(f)
+    lean_out = _load_lean_json(args.lean_output)
 
     pairs = lean_out.get("pairs", [])
     if not isinstance(pairs, list):
@@ -331,6 +355,11 @@ def main() -> int:
         "metadata": meta,
         "pairs": pairs,
     }
+
+    if isinstance(lean_out.get("standard_metrics"), dict):
+        report["standard_metrics"] = lean_out["standard_metrics"]
+    if isinstance(lean_out.get("categorical_summary"), dict):
+        report["categorical_summary"] = lean_out["categorical_summary"]
     with open(os.path.join(out_dir, "validation_report.json"), "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
 

@@ -78,7 +78,7 @@ def main() -> int:
     )
 
     run_checked(["bash", "-lc", "cd lean && lake build --wfail seismic_validate_demo"])
-    out = run_capture(["bash", "-lc", f"cd lean && lake exe seismic_validate_demo -- ../{args.bundle}"])
+    out = run_capture(["bash", "-lc", f"cd lean && lake exe seismic_validate_demo -- --json-only ../{args.bundle}"])
     with open(args.out, "w", encoding="utf-8") as f:
         f.write(out)
     return 0
@@ -86,4 +86,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

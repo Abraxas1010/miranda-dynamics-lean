@@ -2,6 +2,7 @@ import HeytingLean.MirandaDynamics.Seismic.Basic
 import HeytingLean.MirandaDynamics.Seismic.Observable
 import HeytingLean.MirandaDynamics.Seismic.Reaching
 import HeytingLean.MirandaDynamics.Seismic.Validation
+import HeytingLean.MirandaDynamics.Seismic.CategoricalValidation
 
 /-!
 # MirandaDynamics.Seismic (umbrella)
@@ -16,4 +17,3 @@ An observation-first physical-system integration target using real-world seismic
 The data acquisition bridge is `scripts/seismic_bridge.py`.
 The offline validator executable is `seismic_validate_demo`.
 -/
-
