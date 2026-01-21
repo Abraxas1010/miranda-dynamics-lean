@@ -7,8 +7,12 @@ let viewerInitialized = false;
 
 export async function initGlobe(containerId) {
   try {
-    // Initialize Cesium viewer without requiring Cesium ion token
+    // Completely disable Cesium ion to avoid 401 errors
+    Cesium.Ion.defaultAccessToken = undefined;
+
+    // Create viewer with NO default imagery (we'll add our own)
     const viewer = new Cesium.Viewer(containerId, {
+      imageryProvider: false,  // No default imagery
       baseLayerPicker: false,
       animation: false,
       timeline: false,
@@ -19,18 +23,23 @@ export async function initGlobe(containerId) {
       fullscreenButton: false,
       infoBox: false,
       selectionIndicator: false,
-      creditContainer: document.createElement('div'), // Hide credits
-      requestRenderMode: true,  // Only render when needed
-      maximumRenderTimeChange: Infinity
+      creditContainer: document.createElement('div'),
+      skyBox: false,           // Disable skybox (uses ion)
+      skyAtmosphere: false,    // Disable atmosphere (can cause issues)
+      contextOptions: {
+        webgl: {
+          alpha: false,
+          antialias: true,
+          preserveDrawingBuffer: true
+        }
+      }
     });
 
-    // Remove default imagery and add OpenStreetMap
-    viewer.imageryLayers.removeAll();
-    viewer.imageryLayers.addImageryProvider(
-      new Cesium.OpenStreetMapImageryProvider({
-        url: 'https://tile.openstreetmap.org/'
-      })
-    );
+    // Add OpenStreetMap imagery (no authentication needed)
+    const osmProvider = new Cesium.OpenStreetMapImageryProvider({
+      url: 'https://tile.openstreetmap.org/'
+    });
+    viewer.imageryLayers.addImageryProvider(osmProvider);
 
     // Set initial camera position - fixed view looking at Pacific
     viewer.camera.setView({
@@ -42,16 +51,25 @@ export async function initGlobe(containerId) {
       }
     });
 
-    // Disable camera movement to prevent auto-zoom issues
+    // Disable automatic camera behaviors
     viewer.scene.screenSpaceCameraController.enableRotate = true;
     viewer.scene.screenSpaceCameraController.enableTranslate = false;
     viewer.scene.screenSpaceCameraController.enableZoom = true;
-    viewer.scene.screenSpaceCameraController.enableTilt = true;
+    viewer.scene.screenSpaceCameraController.enableTilt = false;
     viewer.scene.screenSpaceCameraController.enableLook = false;
+    viewer.scene.screenSpaceCameraController.minimumZoomDistance = 1000000;  // Don't zoom too close
+    viewer.scene.screenSpaceCameraController.maximumZoomDistance = 50000000; // Don't zoom too far
+
+    // Disable auto-tracking behaviors
+    viewer.trackedEntity = undefined;
+    viewer.scene.globe.depthTestAgainstTerrain = false;
 
     // Dark background
     viewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#0a0a1a');
     viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString('#1a1a3a');
+
+    // Disable lighting effects that could cause visual changes
+    viewer.scene.globe.enableLighting = false;
 
     // Enable picking for station clicks
     viewer.screenSpaceEventHandler.setInputAction((click) => {
