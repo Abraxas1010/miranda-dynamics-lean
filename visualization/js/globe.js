@@ -279,39 +279,51 @@ export function updateWaveFronts(viewer, event, currentTime, waveVelocity) {
     const pWaveEntities = [];
     const sWaveEntities = [];
 
-    // Create P-wave ring (green) - simple solid line for compatibility
+    // Create P-wave ring (green) using ellipse with outline only
     if (pWaveRadius > 0 && pWaveRadius < maxRadius) {
-      const mainPoints = generateCirclePoints(event.longitude, event.latitude, pWaveRadius, 180, 100000);
       pWaveEntities.push(viewer.entities.add({
-        polyline: {
-          positions: Cesium.Cartesian3.fromDegreesArrayHeights(mainPoints),
-          width: 5,
-          material: Cesium.Color.LIME
+        position: Cesium.Cartesian3.fromDegrees(event.longitude, event.latitude),
+        ellipse: {
+          semiMajorAxis: pWaveRadius,
+          semiMinorAxis: pWaveRadius,
+          fill: false,
+          outline: true,
+          outlineColor: Cesium.Color.LIME,
+          outlineWidth: 4,
+          height: 0
         }
       }));
 
-      // One trailing ring
-      const trailRadius = pWaveRadius - 300000;
+      // Trailing ring
+      const trailRadius = pWaveRadius - 500000;
       if (trailRadius > 0) {
-        const trailPoints = generateCirclePoints(event.longitude, event.latitude, trailRadius, 180, 100000);
         pWaveEntities.push(viewer.entities.add({
-          polyline: {
-            positions: Cesium.Cartesian3.fromDegreesArrayHeights(trailPoints),
-            width: 3,
-            material: Cesium.Color.LIME.withAlpha(0.5)
+          position: Cesium.Cartesian3.fromDegrees(event.longitude, event.latitude),
+          ellipse: {
+            semiMajorAxis: trailRadius,
+            semiMinorAxis: trailRadius,
+            fill: false,
+            outline: true,
+            outlineColor: Cesium.Color.LIME.withAlpha(0.4),
+            outlineWidth: 2,
+            height: 0
           }
         }));
       }
     }
 
-    // Create S-wave ring (red/orange) - simple solid line
+    // Create S-wave ring (orange/red) using ellipse
     if (sWaveRadius > 0 && sWaveRadius < maxRadius) {
-      const mainPoints = generateCirclePoints(event.longitude, event.latitude, sWaveRadius, 180, 80000);
       sWaveEntities.push(viewer.entities.add({
-        polyline: {
-          positions: Cesium.Cartesian3.fromDegreesArrayHeights(mainPoints),
-          width: 4,
-          material: Cesium.Color.ORANGERED
+        position: Cesium.Cartesian3.fromDegrees(event.longitude, event.latitude),
+        ellipse: {
+          semiMajorAxis: sWaveRadius,
+          semiMinorAxis: sWaveRadius,
+          fill: false,
+          outline: true,
+          outlineColor: Cesium.Color.ORANGERED,
+          outlineWidth: 3,
+          height: 0
         }
       }));
     }
