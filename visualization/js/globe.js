@@ -304,28 +304,30 @@ export function updateWaveFronts(viewer, event, currentTime, waveVelocity) {
     const pWaveEntities = [];
     const sWaveEntities = [];
 
-    // Create P-wave ring (green) using wall entity for reliable rendering
+    // Create P-wave ring (green) using corridor entity
     if (pWaveRadius > 0 && pWaveRadius < maxRadius) {
-      const pPoints = generateCirclePositions(event.longitude, event.latitude, pWaveRadius, 120);
+      const pPoints = generateCirclePositions(event.longitude, event.latitude, pWaveRadius, 90);
       pWaveEntities.push(viewer.entities.add({
-        wall: {
+        corridor: {
           positions: pPoints,
-          minimumHeights: new Array(pPoints.length).fill(0),
-          maximumHeights: new Array(pPoints.length).fill(80000),
-          material: Cesium.Color.LIME.withAlpha(0.8)
+          width: 50000,
+          material: Cesium.Color.LIME.withAlpha(0.6),
+          height: 1000,
+          extrudedHeight: 100000
         }
       }));
     }
 
-    // Create S-wave ring (orange/red) using wall entity
+    // Create S-wave ring (orange/red) using corridor entity
     if (sWaveRadius > 0 && sWaveRadius < maxRadius) {
-      const sPoints = generateCirclePositions(event.longitude, event.latitude, sWaveRadius, 120);
+      const sPoints = generateCirclePositions(event.longitude, event.latitude, sWaveRadius, 90);
       sWaveEntities.push(viewer.entities.add({
-        wall: {
+        corridor: {
           positions: sPoints,
-          minimumHeights: new Array(sPoints.length).fill(0),
-          maximumHeights: new Array(sPoints.length).fill(60000),
-          material: Cesium.Color.ORANGERED.withAlpha(0.8)
+          width: 40000,
+          material: Cesium.Color.ORANGERED.withAlpha(0.6),
+          height: 1000,
+          extrudedHeight: 80000
         }
       }));
     }
