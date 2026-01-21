@@ -28,25 +28,35 @@ const precisionDisplay = document.getElementById('precision-display');
 async function init() {
   console.log('Initializing Miranda Dynamics Visualization...');
 
-  // Initialize Cesium globe
-  state.viewer = await initGlobe('cesium-container');
+  try {
+    // Initialize Cesium globe
+    state.viewer = await initGlobe('cesium-container');
+    if (state.viewer) {
+      console.log('Globe viewer created successfully');
+    } else {
+      console.error('Globe viewer failed to initialize');
+    }
 
-  // Initialize billiard simulation
-  initBilliard('billiard-canvas');
+    // Initialize billiard simulation
+    initBilliard('billiard-canvas');
 
-  // Initialize calibration chart
-  initCalibrationChart('calibration-chart', VALIDATION_DATA.billiard_calibration);
+    // Initialize calibration chart
+    initCalibrationChart('calibration-chart', VALIDATION_DATA.billiard_calibration);
 
-  // Load initial event
-  loadEvent(state.currentEventId);
+    // Load initial event
+    loadEvent(state.currentEventId);
 
-  // Setup event listeners
-  setupEventListeners();
+    // Setup event listeners
+    setupEventListeners();
 
-  // Start animation loop
-  requestAnimationFrame(animationLoop);
+    // Start animation loop
+    lastTimestamp = performance.now();
+    requestAnimationFrame(animationLoop);
 
-  console.log('Initialization complete.');
+    console.log('Initialization complete.');
+  } catch (error) {
+    console.error('Initialization error:', error);
+  }
 }
 
 function loadEvent(eventId) {
