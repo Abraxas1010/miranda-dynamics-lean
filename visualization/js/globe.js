@@ -300,7 +300,7 @@ export function updateWaveFronts(viewer, event, currentTime, waveVelocity) {
     const pWaveRadius = currentTime * waveVelocity.p_wave_km_s * 1000;
     const sWaveRadius = currentTime * waveVelocity.s_wave_km_s * 1000;
 
-    const maxRadius = 20000000; // 20,000 km max
+    const maxRadius = 12000000; // 12,000 km max (about 1/3 of Earth circumference)
     const pWaveEntities = [];
     const sWaveEntities = [];
 
