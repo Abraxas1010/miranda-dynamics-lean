@@ -216,22 +216,54 @@ function getStationColor(result, hasArrived) {
   }
 }
 
+// Generate circle points for a wave front at given radius
+function generateCirclePoints(centerLon, centerLat, radiusMeters, numPoints = 90) {
+  const points = [];
+  const earthRadius = 6371000; // meters
+  const angularRadius = radiusMeters / earthRadius; // radians
+
+  for (let i = 0; i <= numPoints; i++) {
+    const bearing = (i / numPoints) * 2 * Math.PI;
+    const lat1 = centerLat * Math.PI / 180;
+    const lon1 = centerLon * Math.PI / 180;
+
+    const lat2 = Math.asin(
+      Math.sin(lat1) * Math.cos(angularRadius) +
+      Math.cos(lat1) * Math.sin(angularRadius) * Math.cos(bearing)
+    );
+    const lon2 = lon1 + Math.atan2(
+      Math.sin(bearing) * Math.sin(angularRadius) * Math.cos(lat1),
+      Math.cos(angularRadius) - Math.sin(lat1) * Math.sin(lat2)
+    );
+
+    points.push(lon2 * 180 / Math.PI, lat2 * 180 / Math.PI);
+  }
+  return points;
+}
+
 export function updateWaveFronts(viewer, event, currentTime, waveVelocity) {
   if (!viewer || !viewerInitialized) return;
 
   try {
-    // Remove existing wave fronts
+    // Remove all existing wave front entities
     if (waveFrontEntities.pWave) {
-      try { viewer.entities.remove(waveFrontEntities.pWave); } catch(e) {}
+      if (Array.isArray(waveFrontEntities.pWave)) {
+        waveFrontEntities.pWave.forEach(e => { try { viewer.entities.remove(e); } catch(ex) {} });
+      } else {
+        try { viewer.entities.remove(waveFrontEntities.pWave); } catch(ex) {}
+      }
       waveFrontEntities.pWave = null;
     }
     if (waveFrontEntities.sWave) {
-      try { viewer.entities.remove(waveFrontEntities.sWave); } catch(e) {}
+      if (Array.isArray(waveFrontEntities.sWave)) {
+        waveFrontEntities.sWave.forEach(e => { try { viewer.entities.remove(e); } catch(ex) {} });
+      } else {
+        try { viewer.entities.remove(waveFrontEntities.sWave); } catch(ex) {}
+      }
       waveFrontEntities.sWave = null;
     }
 
     if (currentTime <= 0) {
-      viewer.scene.requestRender();
       return;
     }
 
@@ -239,37 +271,80 @@ export function updateWaveFronts(viewer, event, currentTime, waveVelocity) {
     const pWaveRadius = currentTime * waveVelocity.p_wave_km_s * 1000;
     const sWaveRadius = currentTime * waveVelocity.s_wave_km_s * 1000;
 
-    // P-wave front (green) - faster wave
-    if (pWaveRadius > 0 && pWaveRadius < 20000000) {
-      waveFrontEntities.pWave = viewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(event.longitude, event.latitude),
-        ellipse: {
-          semiMajorAxis: pWaveRadius,
-          semiMinorAxis: pWaveRadius,
-          material: Cesium.Color.fromCssColorString('#00ff88').withAlpha(0.1),
-          outline: true,
-          outlineColor: Cesium.Color.fromCssColorString('#00ff88').withAlpha(0.9),
-          outlineWidth: 3,
-          height: 0
+    const maxRadius = 20000000; // 20,000 km max
+    const pWaveEntities = [];
+    const sWaveEntities = [];
+
+    // Create multiple concentric P-wave rings (green) for ripple effect
+    if (pWaveRadius > 0 && pWaveRadius < maxRadius) {
+      // Main wave front - bright and thick
+      const mainPoints = generateCirclePoints(event.longitude, event.latitude, pWaveRadius);
+      pWaveEntities.push(viewer.entities.add({
+        polyline: {
+          positions: Cesium.Cartesian3.fromDegreesArray(mainPoints),
+          width: 4,
+          material: new Cesium.PolylineGlowMaterialProperty({
+            glowPower: 0.3,
+            color: Cesium.Color.fromCssColorString('#00ff88')
+          }),
+          clampToGround: true
         }
-      });
+      }));
+
+      // Trailing ripples (fading)
+      for (let i = 1; i <= 3; i++) {
+        const trailRadius = pWaveRadius - (i * 200000); // 200km spacing
+        if (trailRadius > 0) {
+          const trailPoints = generateCirclePoints(event.longitude, event.latitude, trailRadius);
+          const alpha = 0.6 - (i * 0.15);
+          pWaveEntities.push(viewer.entities.add({
+            polyline: {
+              positions: Cesium.Cartesian3.fromDegreesArray(trailPoints),
+              width: 3 - i * 0.5,
+              material: Cesium.Color.fromCssColorString('#00ff88').withAlpha(alpha),
+              clampToGround: true
+            }
+          }));
+        }
+      }
     }
 
-    // S-wave front (red) - slower wave
-    if (sWaveRadius > 0 && sWaveRadius < 20000000) {
-      waveFrontEntities.sWave = viewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(event.longitude, event.latitude),
-        ellipse: {
-          semiMajorAxis: sWaveRadius,
-          semiMinorAxis: sWaveRadius,
-          material: Cesium.Color.fromCssColorString('#ff4444').withAlpha(0.1),
-          outline: true,
-          outlineColor: Cesium.Color.fromCssColorString('#ff4444').withAlpha(0.7),
-          outlineWidth: 2,
-          height: 0
+    // Create multiple concentric S-wave rings (red/orange)
+    if (sWaveRadius > 0 && sWaveRadius < maxRadius) {
+      // Main wave front
+      const mainPoints = generateCirclePoints(event.longitude, event.latitude, sWaveRadius);
+      sWaveEntities.push(viewer.entities.add({
+        polyline: {
+          positions: Cesium.Cartesian3.fromDegreesArray(mainPoints),
+          width: 3,
+          material: new Cesium.PolylineGlowMaterialProperty({
+            glowPower: 0.25,
+            color: Cesium.Color.fromCssColorString('#ff6644')
+          }),
+          clampToGround: true
         }
-      });
+      }));
+
+      // Trailing ripples
+      for (let i = 1; i <= 2; i++) {
+        const trailRadius = sWaveRadius - (i * 150000);
+        if (trailRadius > 0) {
+          const trailPoints = generateCirclePoints(event.longitude, event.latitude, trailRadius);
+          const alpha = 0.5 - (i * 0.15);
+          sWaveEntities.push(viewer.entities.add({
+            polyline: {
+              positions: Cesium.Cartesian3.fromDegreesArray(trailPoints),
+              width: 2,
+              material: Cesium.Color.fromCssColorString('#ff6644').withAlpha(alpha),
+              clampToGround: true
+            }
+          }));
+        }
+      }
     }
+
+    waveFrontEntities.pWave = pWaveEntities;
+    waveFrontEntities.sWave = sWaveEntities;
 
     // Update station colors based on wave arrival
     Object.entries(stationEntities).forEach(([code, entity]) => {
