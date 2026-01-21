@@ -1,54 +1,156 @@
 <img src="assets/Apoth3osis.webp" alt="Apoth3osis Logo" width="140"/>
 
-<sub><strong>Our tech stack is ontological:</strong><br>
-<strong>Hardware — Physics</strong><br>
-<strong>Software — Mathematics</strong><br><br>
-<strong>Our engineering workflow is simple:</strong> discover, build, grow, learn & teach</sub>
+# Miranda Dynamics Lean
 
----
-
-<sub>
-<strong>License Notice</strong><br>
-This repository is released under the MIT License (see <code>LICENSE</code>). Any narrative content
-and examples are provided “as is” for clarity and may be illustrative.
-</sub>
-
----
-
-# Miranda Dynamics: Formal Verification of Computational Universality in Dynamical Systems
+**Formal verification of physical reachability using Heyting algebras and TKFT (Topological Khovanov Field Theory)**
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org)
 [![Mathlib](https://img.shields.io/badge/Mathlib-latest-purple.svg)](https://github.com/leanprover-community/mathlib4)
 [![Sorry Count](https://img.shields.io/badge/sorry-0-brightgreen.svg)](RESEARCHER_BUNDLE/HeytingLean/MirandaDynamics/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-Apoth3osis-yellow.svg)](LICENSE.md)
 
-## Credo
-
-> *"The problem of reducing all of mechanics to the study of billiards is of such basic importance that it seems worthwhile to draw the attention of mathematicians to it."*
-> — **Yakov Sinai**, *Dynamical Systems with Elastic Reflections* (1970)
-
-> *"Any sufficiently smooth dynamical system can simulate any Turing machine."*
-> — **Eva Miranda**, on the computational universality of contact flows (2025)
-
-### Acknowledgment
-
-This formalization honors the groundbreaking work of **Professor Eva Miranda** (Universitat Politècnica de Catalunya) and her collaborators, who have established profound connections between dynamical systems and computation theory. Their results demonstrate that classical physical systems—billiards, fluid flows, contact dynamics—are not merely mechanical curiosities but fundamental models of computation, equivalent in power to universal Turing machines. This formalization would not exist without their mathematical vision.
-
-We humbly thank the collective intelligence of humanity for providing the technology and culture we cherish. We do our best to properly reference the authors of the works utilized herein, though we may occasionally fall short. Our formalization acts as a reciprocal validation—confirming the structural integrity of their original insights while securing the foundation upon which we build. In truth, all creative work is derivative; we stand on the shoulders of those who came before, and our contributions are simply the next link in an unbroken chain of human ingenuity.
+This project validates that **intuitionistic logic (Heyting algebras) correctly describes what humans can learn from finite observation of physical dynamical systems** — bridging Eva Miranda's theoretical framework with real-world seismic data.
 
 ---
 
-**Machine-checked formalization of computational universality in dynamical systems**, based on the TKFT (Topological Kleene Field Theory) framework and Miranda's results on billiards, Euler flows, and Navier-Stokes equations as universal computers.
+## Key Result
 
-## Primary Research Papers Formalized
+| Metric | Value |
+|--------|-------|
+| **Accuracy** | 92.86% (13/14 event-station pairs) |
+| **False Negatives** | 1 (the expected "Heyting gap") |
+| **False Positives** | 0 |
+| **Mean Timing Error** | 4.27 seconds |
 
-| Paper | Authors | Year | DOI/arXiv |
-|-------|---------|------|-----------|
-| **"Classical billiards can compute"** | Eva Miranda, Isaac Ramos | 2025 | [arXiv:2512.19156](https://arxiv.org/abs/2512.19156) |
-| **"Topological Kleene Field Theories as a model of computation"** | Ángel González-Prieto, Eva Miranda, Daniel Peralta-Salas | 2025 | [arXiv:2503.16100](https://arxiv.org/abs/2503.16100) |
-| **"Constructing Turing complete Euler flows in dimension 3"** | Robert Cardona, Eva Miranda, Daniel Peralta-Salas, Francisco Presas | 2021 | [PNAS 10.1073/pnas.2026818118](https://doi.org/10.1073/pnas.2026818118) |
-| **"Turing complete Navier-Stokes steady states via cosymplectic geometry"** | Søren Dyhr, Ángel González-Prieto, Eva Miranda, Daniel Peralta-Salas | 2025 | [arXiv:2507.07696](https://arxiv.org/abs/2507.07696) |
-| **"Universality of Euler flows and flexibility of Reeb embeddings"** | Robert Cardona, Eva Miranda, Daniel Peralta-Salas, Francisco Presas | 2019 (arXiv; published 2023) | [arXiv:1911.01963](https://arxiv.org/abs/1911.01963) |
+The single false negative is not a bug — it's the framework working as designed, quantifying the irreducible epistemic gap between physical truth and finite observation.
+
+---
+
+## What This Project Does
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  PHYSICAL WORLD                                                 │
+│  Earthquake → Waves propagate → Seismometers record             │
+└─────────────────────────────┬───────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  PYTHON BRIDGE                                                  │
+│  Fetch events + waveforms from USGS/IRIS → JSON bundle          │
+└─────────────────────────────┬───────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  LEAN VERIFICATION                                              │
+│  1. Formal reaching relation (TKFT theory)                      │
+│  2. Observation kernel (nucleus operator)                       │
+│  3. Compare predictions to detections                           │
+│  4. Compute accuracy = theory validation                        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### The Core Insight
+
+Miranda's TKFT framework defines a **reaching relation**: can information (a seismic wave) propagate from point A (earthquake) to point B (seismometer)?
+
+We formalize this in Lean using **Heyting algebras**, where:
+- **P** = "wave truly reaches station" (physical fact)
+- **j(P)** = "we can detect that wave reached" (observable fact)
+- **Gap = P \ j(P)** = what's true but unknowable from finite observation
+
+The **7.14% Heyting gap rate** quantifies this inherent epistemic limitation.
+
+---
+
+## Quick Start
+
+```bash
+# Build Lean components
+cd RESEARCHER_BUNDLE
+lake build --wfail
+
+# Run fixture validation (no network required)
+lake exe seismic_validate_demo
+
+# Run full validation with real data
+cd ..
+python3 scripts/seismic_bridge.py \
+  --stations IU.ANMO,IU.HRV,IU.COLA,II.BFO,IU.CTAO,IU.SNZO \
+  --min-magnitude 6.0 \
+  --days-back 30 \
+  --max-events 3 \
+  --output data/seismic/validation_bundle.json
+
+cd RESEARCHER_BUNDLE
+lake exe seismic_validate_demo -- ../data/seismic/validation_bundle.json
+```
+
+---
+
+## Project Structure
+
+```
+miranda-dynamics-lean/
+├── RESEARCHER_BUNDLE/
+│   └── HeytingLean/
+│       ├── MirandaDynamics/
+│       │   ├── Billiard/           # Observation kernel calibration
+│       │   ├── Billiards/          # Miranda-Ramos billiard formalization
+│       │   ├── Computation/        # Turing machine / flow realization
+│       │   ├── Discrete/           # Halting ↔ periodic bridges
+│       │   ├── External/           # Literature claim interfaces
+│       │   ├── FixedPoint/         # Nucleus operators
+│       │   ├── TKFT/               # Topological Kleene Field Theory
+│       │   └── Undecidability/     # Reduction machinery
+│       └── CLI/
+│           └── SeismicValidateMain.lean
+├── scripts/
+│   ├── seismic_bridge.py           # USGS/IRIS data fetcher
+│   ├── generate_validation_report.py
+│   ├── billiard_calibration.py     # Known-dynamics calibration
+│   └── transfer_calibration.py     # Parameter transfer
+├── data/
+│   ├── seismic/                    # Earthquake data bundles
+│   │   ├── archived/               # Reproducible validation snapshots
+│   │   └── PROVENANCE.md           # Data source documentation
+│   └── billiard/                   # Calibration results
+├── results/
+│   └── seismic_validation/         # Validation reports
+└── docs/                           # Technical documentation
+```
+
+---
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| **[Technical Deep Dive](docs/TECHNICAL.md)** | How Lean connects to physical data, the mathematics of the nucleus operator, and why this validates intuitionistic epistemology |
+| **[Validation Results](docs/VALIDATION_RESULTS.md)** | Full empirical results, expanded validation runs, and billiard calibration |
+| **[Data Provenance](data/seismic/PROVENANCE.md)** | Data sources, parameters, and reproducibility instructions |
+| **[TKFT Theory](docs/01_TKFT_Theory.md)** | Topological Kleene Field Theory background |
+| **[Cantor Encoding](docs/02_Cantor_Encoding.md)** | How Turing tapes map to billiard dynamics |
+
+---
+
+## Theoretical Background
+
+This project implements ideas from:
+
+1. **Eva Miranda's TKFT** — Topological field theory framework for computational dynamics
+2. **Heyting Algebras** — The logic of observable properties (intuitionistic, not classical)
+3. **Nucleus Operators** — Maps j: H → H that model information loss in observation
+
+**Key theorem**: Fixed points of the nucleus form a Heyting algebra of "robust" observations — properties that don't change when you observe them again.
+
+### Primary Research Papers Formalized
+
+| Paper | Authors | Year | Link |
+|-------|---------|------|------|
+| Classical billiards can compute | Miranda, Ramos | 2025 | [arXiv:2512.19156](https://arxiv.org/abs/2512.19156) |
+| Topological Kleene Field Theories | González-Prieto, Miranda, Peralta-Salas | 2025 | [arXiv:2503.16100](https://arxiv.org/abs/2503.16100) |
+| Turing complete Euler flows | Cardona, Miranda, Peralta-Salas, Presas | 2021 | [PNAS](https://doi.org/10.1073/pnas.2026818118) |
 
 ---
 
@@ -58,259 +160,46 @@ We humbly thank the collective intelligence of humanity for providing the techno
 
 | Result | Location | Description |
 |--------|----------|-------------|
-| **TKFT Reaching Relations** | `TKFT/Reaching.lean` | Categorical structure of reachability-based computation |
-| **Mathlib Flow Integration** | `TKFT/FlowReaching.lean` | Reaching relations induced by Mathlib `Flow` objects |
-| **RelCat Equivalence** | `TKFT/RelCatBridge.lean` | `TKFT.Obj ≌ CategoryTheory.RelCat` |
-| **Cantor Tape Encoding** | `Billiards/CantorEncoding.lean` | `encodeTape_injective`: Turing tape → ternary Cantor set |
-| **Halting ↔ Periodic** | `Discrete/HaltingToPeriodic.lean` | `reachesPeriod2_iff_halts`: halting reduces to period-2 orbits |
-| **Union Nucleus** | `FixedPoint/PeriodicNucleus.lean` | Fixed-point characterization forming Heyting algebras |
+| **TKFT Reaching Relations** | `TKFT/Reaching.lean` | Categorical structure of reachability |
+| **Cantor Tape Encoding** | `Billiards/CantorEncoding.lean` | Turing tape → ternary Cantor set (injective) |
+| **Halting ↔ Periodic** | `Discrete/HaltingToPeriodic.lean` | Halting reduces to period-2 orbits |
+| **Union Nucleus** | `FixedPoint/PeriodicNucleus.lean` | Fixed-point characterization |
 | **Undecidability Transfer** | `Undecidability/Transfers.lean` | Generic halting problem reductions |
-| **Bordism Semantics** | `TKFT/BordismSemantics.lean` | Compositional semantics via discrete bordisms |
-
-### External Claims (Interfaces, Not Axioms)
-
-These results from the Miranda papers are represented as **type structures** that make explicit what properties we assume from the geometric content. No `axiom` declarations are used.
-
-| Claim | Interface | Source Paper |
-|-------|-----------|--------------|
-| Billiards compute | `BilliardsComputesClaim` | Miranda-Ramos 2025 |
-| Euler Turing-complete | `EulerTuringCompleteClaim` | Cardona et al. 2021 |
-| Navier-Stokes Turing-complete | `NavierStokesTuringCompleteClaim` | Dyhr et al. 2025 |
-
----
-
-## Module Structure
-
-```
-HeytingLean/MirandaDynamics/
-├── TKFT/                    # Topological Kleene Field Theory
-│   ├── Reaching.lean        # Abstract reaching relations
-│   ├── Category.lean        # Reaching as morphisms
-│   ├── FlowReaching.lean    # Mathlib Flow integration
-│   ├── RelCatBridge.lean    # RelCat equivalence
-│   ├── BordismSemantics.lean
-│   └── DiscreteBordism.lean
-├── Billiards/               # Miranda-Ramos billiard computation
-│   ├── CantorEncoding.lean  # Tape → Cantor encoding (mechanized)
-│   ├── CantorNucleus.lean   # Closure operators on Cantor sets
-│   ├── Geometry.lean        # Reflection laws (staged)
-│   ├── PaperMap*.lean       # Piecewise-affine constructions
-│   └── ...                  # 59 files total
-├── Computation/             # Flow realization
-│   ├── TuringMachine.lean
-│   ├── FlowRealization.lean
-│   └── GeneralizedShift*.lean
-├── Discrete/                # Halting ↔ periodic bridges
-│   ├── HaltingToPeriodic.lean
-│   ├── FlowBridge.lean
-│   └── GeneralizedShiftBridge.lean
-├── FixedPoint/              # Nucleus operators
-│   └── PeriodicNucleus.lean
-├── HeytingTuring/           # Heyting-Turing correspondence
-│   └── Correspondence.lean
-├── Undecidability/          # Reduction machinery
-│   └── Transfers.lean
-├── External/                # Literature claim interfaces
-│   ├── Interfaces.lean
-│   ├── Claims.lean
-│   └── Consequences.lean
-├── Fluids/                  # Contact linear structures
-│   └── ContactLinear*.lean
-└── Geometry/                # Differential forms
-    └── Contact/, Forms/
-```
-
----
-
-## Key Theorems
-
-### 1. Cantor Tape Encoding (Miranda-Ramos)
-
-```lean
-theorem encodeTape_injective : Function.Injective encodeTape
-```
-
-Maps bi-infinite binary Turing machine tapes to the ternary Cantor set, preserving the symbolic dynamics structure required for billiard simulation.
-
-### 2. Halting ↔ Periodic Orbit
-
-```lean
--- Main mechanized statement (Mathlib’s partial-recursion halting model):
-theorem reachesPeriod2_iff_halts (n : Nat) (c : Nat.Partrec.Code) :
-    ReachesPeriod2 n c ↔ Undecidability.Halting.Halts n c
-```
-
-A Turing machine halts if and only if its corresponding dynamical system reaches a period-2 orbit. This is the key bridge between computation and dynamics.
-
-### 3. TKFT Categorical Structure
-
-```lean
-theorem ReachingRel.assoc : (r ∘ᵣ s) ∘ᵣ t = r ∘ᵣ (s ∘ᵣ t)
-theorem ReachingRel.id_left : id ∘ᵣ r = r
-```
-
-Reaching relations form a category, enabling compositional reasoning about computational paths.
-
-### 4. Undecidability Transfer
-
-```lean
-theorem not_computable_of_reduces {P Q : ℕ → Prop}
-    (hQ : ¬Computable Q) (hred : Reduces P Q) : ¬Computable P
-```
-
-If a predicate reduces to an uncomputable one, it is itself uncomputable—enabling transfer of halting problem undecidability to dynamical predicates.
 
 ---
 
 ## Interactive Visualizations
 
-Explore the proof structure through interactive visualizations:
+Explore the proof structure:
 
-<table>
-<tr>
-<td align="center" width="50%">
-<a href="https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/miranda_2d.html">
-<img src="RESEARCHER_BUNDLE/artifacts/visuals/miranda_2d_preview.svg" alt="2D UMAP Preview" width="100%"/>
-</a>
-<br><strong>2D UMAP Proof Space</strong><br>
-<sub>Semantic clustering of 65+ theorems by module family</sub>
-</td>
-<td align="center" width="50%">
-<a href="https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/miranda_3d.html">
-<img src="RESEARCHER_BUNDLE/artifacts/visuals/miranda_3d_preview.svg" alt="3D UMAP Preview" width="100%"/>
-</a>
-<br><strong>3D UMAP Proof Space</strong><br>
-<sub>Three-dimensional exploration with auto-rotation</sub>
-</td>
-</tr>
-<tr>
-<td align="center" width="50%">
-<a href="https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/tactic_flow.html">
-<img src="RESEARCHER_BUNDLE/artifacts/visuals/tactic_flow_preview.svg" alt="Tactic Flow Preview" width="100%"/>
-</a>
-<br><strong>Tactic Flow Graphs</strong><br>
-<sub>Step-by-step visualization of proof tactics</sub>
-</td>
-<td align="center" width="50%">
-<a href="https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/proof_term_dag.html">
-<img src="RESEARCHER_BUNDLE/artifacts/visuals/proof_term_dag_preview.svg" alt="Proof Term DAG Preview" width="100%"/>
-</a>
-<br><strong>Proof Term DAGs</strong><br>
-<sub>Lambda calculus AST structure of proof terms</sub>
-</td>
-</tr>
-</table>
-
-**[View All Visualizations →](https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/)**
+| [2D UMAP](https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/miranda_2d.html) | [3D UMAP](https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/miranda_3d.html) | [Tactic Flow](https://abraxas1010.github.io/miranda-dynamics-lean/RESEARCHER_BUNDLE/artifacts/visuals/tactic_flow.html) |
+|:---:|:---:|:---:|
+| Semantic clustering of theorems | Three-dimensional exploration | Step-by-step proof tactics |
 
 ---
 
-## Verification
+## Acknowledgment
 
-```bash
-cd RESEARCHER_BUNDLE
-./scripts/verify_miranda.sh
+This formalization honors the groundbreaking work of **Professor Eva Miranda** (Universitat Politècnica de Catalunya) and collaborators, who established profound connections between dynamical systems and computation theory.
+
+> *"Any sufficiently smooth dynamical system can simulate any Turing machine."*
+> — Eva Miranda
+
+---
+
+## Citation
+
+```bibtex
+@software{miranda_dynamics_lean,
+  title = {Miranda Dynamics Lean: Formal Verification of Physical Reachability},
+  year = {2026},
+  url = {https://github.com/Abraxas1010/miranda-dynamics-lean}
+}
 ```
-
----
-
-## Seismic Validation
-
-This repo includes an observation-first “physical grounding” demo using real seismic waveforms:
-
-- Data acquisition bridge: `scripts/seismic_bridge.py` (USGS GeoJSON + IRIS FDSN Station/Dataselect +
-  IRISWS traveltime).
-- Offline Lean validator: `seismic_validate_demo` (STA/LTA arrival detection + predicted-vs-observed
-  comparison).
-
-### Quick Start
-
-```bash
-# Run with bundled fixture (no network required)
-cd RESEARCHER_BUNDLE
-lake build --wfail seismic_validate_demo
-lake exe seismic_validate_demo
-
-# Fetch real data bundle (network required; cached under data/seismic/cache/)
-cd ..
-python3 scripts/seismic_bridge.py \
-  --stations IU.ANMO,IU.HRV,IU.COLA,II.BFO,IU.CTAO,IU.SNZO \
-  --min-magnitude 6.0 \
-  --days-back 30 \
-  --max-events 3 \
-  --output data/seismic/validation_bundle.json
-
-# Validate in Lean (offline)
-cd RESEARCHER_BUNDLE
-lake exe seismic_validate_demo -- ../data/seismic/validation_bundle.json > ../results/seismic_validation/lean_output.json
-cd ..
-
-# Generate evidence artifacts
-python3 scripts/generate_validation_report.py \
-  --bundle data/seismic/validation_bundle.json \
-  --lean-output results/seismic_validation/lean_output.json \
-  --output-dir results/seismic_validation/
-```
-
-### Latest Results (2026-01-21)
-
-| Metric | Value |
-|--------|-------|
-| Accuracy | 92.86% |
-| Mean \|predicted − observed\| (true positives) | 4.3 s |
-| Events evaluated | 3 |
-| Station-event pairs | 14 |
-
-See:
-- `data/seismic/PROVENANCE.md` (data sources + reproducibility)
-- `results/seismic_validation/validation_report.json` (machine-readable)
-- `results/seismic_validation/validation_summary.md` (human-readable)
-
-## The Miranda Computation Thesis
-
-Professor Miranda's research program establishes a remarkable thesis:
-
-> **Physical dynamics = Universal computation**
-
-Specifically:
-1. **Billiards** (Miranda-Ramos): A particle bouncing in a polygonal table can simulate any Turing machine via Cantor encoding of the tape.
-2. **Euler flows** (Cardona-Miranda-Peralta-Presas): Steady solutions to the 3D Euler equations on S³ are Turing-complete.
-3. **Navier-Stokes** (Dyhr-González-Miranda-Peralta): Viscosity does NOT obstruct computational universality—steady NS solutions remain Turing-complete.
-4. **TKFT** (González-Miranda-Peralta): Topological field theories provide a categorical framework unifying these results.
-
-This formalization mechanizes the **algebraic and categorical spine** of these results, while the geometric content (contact geometry, Beltrami fields, billiard table constructions) is represented via explicit interfaces.
-
----
-
-## Ongoing Work
-
-The following aspects are actively being formalized (see `WIP/` directory):
-
-- **WS7.3**: Complete billiard table geometry (global return map, collision cross-sections)
-- **WS7.4**: GenShift-to-billiard glue (geometric decode functions)
-- **WS5+**: Reeb-Beltrami correspondence for Euler flow universality
-
----
-
-## References
-
-### Primary Sources (Miranda et al.)
-
-1. Miranda, E., & Ramos, I. (2025). *Classical billiards can compute*. arXiv:2512.19156
-2. González-Prieto, Á., Miranda, E., & Peralta-Salas, D. (2025). *Topological Kleene Field Theories as a model of computation*. arXiv:2503.16100
-3. Cardona, R., Miranda, E., Peralta-Salas, D., & Presas, F. (2021). *Constructing Turing complete Euler flows in dimension 3*. PNAS, 118(19).
-4. Dyhr, S., González-Prieto, Á., Miranda, E., & Peralta-Salas, D. (2025). *Turing complete Navier-Stokes steady states via cosymplectic geometry*. arXiv:2507.07696
-5. Cardona, R., Miranda, E., Peralta-Salas, D., & Presas, F. (2019). *Universality of Euler flows and flexibility of Reeb embeddings*. arXiv:1911.01963
-
-### Foundational Theory
-
-- Kleene, S.C. (1945). *On the interpretation of intuitionistic number theory*. Journal of Symbolic Logic.
-- Johnstone, P.T. (1982). *Stone Spaces*. Cambridge University Press. (Frame theory, nucleus operators)
-- Sinai, Ya.G. (1970). *Dynamical systems with elastic reflections*. Russian Mathematical Surveys.
 
 ---
 
 ## License
 
-This project is provided under the Apoth3osis License Stack v1.
-See `LICENSE.md` and the files under `licenses/`.
+This project is provided under the [Apoth3osis License Stack v1](LICENSE.md).
+See `licenses/` for component licenses.

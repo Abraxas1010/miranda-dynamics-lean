@@ -1,9 +1,17 @@
+# Build artifacts
 .lake/
 build/
 lake-packages/
 *.olean
+
+# OS files
 .DS_Store
 *~
+
+# Python
+__pycache__/
+*.pyc
+.venv/
 .cache/
 
 # Private notes
