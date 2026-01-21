@@ -61,7 +61,8 @@ async function init() {
 
 function loadEvent(eventId) {
   state.currentEventId = eventId;
-  state.currentTime = 0;
+  // Start at 100 seconds so waves are immediately visible
+  state.currentTime = 100;
   state.gapModalShown = false;
 
   const event = VALIDATION_DATA.events.find(e => e.id === eventId);
@@ -70,9 +71,9 @@ function loadEvent(eventId) {
   // Update globe
   addStationMarkers(state.viewer, VALIDATION_DATA.stations, results, event);
 
-  // Reset timeline
-  timeSlider.value = 0;
-  updateTimeDisplay(0);
+  // Set timeline to show initial wave position
+  timeSlider.value = state.currentTime;
+  updateTimeDisplay(state.currentTime);
 
   // Reset station details
   document.getElementById('details-content').style.display = 'none';
