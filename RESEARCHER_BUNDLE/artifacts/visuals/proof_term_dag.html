@@ -243,10 +243,19 @@
       const positions = {};
       const maxDepth = Math.max(...Object.keys(depthNodes).map(Number));
 
+      // Calculate total width needed
+      let maxRowWidth = 0;
       for (let d = 0; d <= maxDepth; d++) {
         const nodes = depthNodes[d] || [];
         const rowWidth = nodes.length * nodeW + (nodes.length - 1) * gapX;
-        const startX = (700 - rowWidth) / 2;
+        maxRowWidth = Math.max(maxRowWidth, rowWidth);
+      }
+      const totalWidth = Math.max(800, maxRowWidth + 80);
+
+      for (let d = 0; d <= maxDepth; d++) {
+        const nodes = depthNodes[d] || [];
+        const rowWidth = nodes.length * nodeW + (nodes.length - 1) * gapX;
+        const startX = (totalWidth - rowWidth) / 2;
         nodes.forEach((n, i) => {
           positions[n.id] = {
             x: startX + i * (nodeW + gapX),
@@ -255,11 +264,14 @@
         });
       }
 
-      // SVG for edges
+      const h = (maxDepth + 1) * (nodeH + gapY) + 40;
+
+      // SVG for edges - use explicit pixel dimensions, no viewBox scaling
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       svg.classList.add('edges');
-      const h = (maxDepth + 1) * (nodeH + gapY) + 40;
-      svg.setAttribute('viewBox', `0 0 700 ${h}`);
+      svg.setAttribute('width', totalWidth);
+      svg.setAttribute('height', h);
+      svg.style.width = totalWidth + 'px';
       svg.style.height = h + 'px';
 
       // Defs for arrow marker
@@ -304,6 +316,7 @@
         graphEl.appendChild(div);
       });
 
+      graphEl.style.width = totalWidth + 'px';
       graphEl.style.height = h + 'px';
       graphEl.style.transform = `scale(${zoom})`;
       graphEl.style.transformOrigin = 'top left';

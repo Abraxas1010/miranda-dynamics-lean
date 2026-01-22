@@ -221,10 +221,19 @@
       const positions = {};
       const maxDepth = Math.max(...Object.keys(depthNodes).map(Number));
 
+      // Calculate total width needed
+      let maxRowWidth = 0;
       for (let d = 0; d <= maxDepth; d++) {
         const nodes = depthNodes[d] || [];
         const rowWidth = nodes.length * nodeW + (nodes.length - 1) * gapX;
-        const startX = (800 - rowWidth) / 2;
+        maxRowWidth = Math.max(maxRowWidth, rowWidth);
+      }
+      const totalWidth = Math.max(800, maxRowWidth + 80);
+
+      for (let d = 0; d <= maxDepth; d++) {
+        const nodes = depthNodes[d] || [];
+        const rowWidth = nodes.length * nodeW + (nodes.length - 1) * gapX;
+        const startX = (totalWidth - rowWidth) / 2;
         nodes.forEach((n, i) => {
           positions[n.id] = {
             x: startX + i * (nodeW + gapX),
@@ -233,11 +242,22 @@
         });
       }
 
-      // SVG for edges
+      const h = (maxDepth + 1) * (nodeH + gapY) + 40;
+
+      // SVG for edges - use explicit pixel dimensions, no viewBox scaling
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       svg.classList.add('edges');
-      svg.setAttribute('viewBox', `0 0 800 ${(maxDepth + 1) * (nodeH + gapY) + 40}`);
-      svg.style.height = ((maxDepth + 1) * (nodeH + gapY) + 40) + 'px';
+      svg.setAttribute('width', totalWidth);
+      svg.setAttribute('height', h);
+      svg.style.width = totalWidth + 'px';
+      svg.style.height = h + 'px';
+
+      // Arrow marker - add defs BEFORE edges
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      defs.innerHTML = `<marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L9,3 z" fill="rgba(255,255,255,0.5)"/>
+      </marker>`;
+      svg.appendChild(defs);
 
       thm.edges.forEach(e => {
         const from = positions[e.from];
@@ -259,12 +279,6 @@
         svg.appendChild(path);
       });
 
-      // Arrow marker
-      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-      defs.innerHTML = `<marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-        <path d="M0,0 L0,6 L9,3 z" fill="rgba(255,255,255,0.5)"/>
-      </marker>`;
-      svg.appendChild(defs);
       graphEl.appendChild(svg);
 
       // Nodes
@@ -280,7 +294,8 @@
         graphEl.appendChild(div);
       });
 
-      graphEl.style.height = ((maxDepth + 1) * (nodeH + gapY) + 60) + 'px';
+      graphEl.style.width = totalWidth + 'px';
+      graphEl.style.height = (h + 20) + 'px';
     }
 
     function showDetail(node) {
