@@ -205,7 +205,7 @@
       <h1><span>Miranda Dynamics</span> — Proof Visualizations</h1>
       <p>Interactive visualizations of formal proofs for computational universality in dynamical systems</p>
       <div class="badge">
-        <strong>96 modules</strong> &nbsp;|&nbsp; <strong>0 sorries</strong> &nbsp;|&nbsp; Lean 4 + Mathlib
+        <strong>142 modules</strong> &nbsp;|&nbsp; <strong>1541 declarations</strong> &nbsp;|&nbsp; <strong>0 sorries</strong> &nbsp;|&nbsp; Lean 4 + Mathlib
       </div>
     </header>
 
@@ -216,24 +216,24 @@
 
     <div class="stats">
       <div class="stat">
-        <div class="value">96</div>
+        <div class="value">142</div>
         <div class="label">Lean Modules</div>
       </div>
       <div class="stat">
-        <div class="value">65+</div>
-        <div class="label">Theorems</div>
+        <div class="value">1541</div>
+        <div class="label">Declarations</div>
       </div>
       <div class="stat">
         <div class="value">0</div>
         <div class="label">Sorries</div>
       </div>
       <div class="stat">
-        <div class="value">4</div>
-        <div class="label">Research Papers</div>
+        <div class="value">350+</div>
+        <div class="label">Wolfram Decls</div>
       </div>
       <div class="stat">
-        <div class="value">12</div>
-        <div class="label">Test Suites</div>
+        <div class="value">92.9%</div>
+        <div class="label">Seismic Accuracy</div>
       </div>
     </div>
 
@@ -248,9 +248,9 @@
             <h3>2D UMAP Proof Space</h3>
             <p>Semantic clustering of theorems and lemmas using dimensionality reduction. Explore proof relationships visually.</p>
             <div class="meta">
-              <span><div class="dot" style="background:#3b82f6"></div> Billiards</span>
-              <span><div class="dot" style="background:#22c55e"></div> TKFT</span>
-              <span><div class="dot" style="background:#f59e0b"></div> Discrete</span>
+              <span><div class="dot" style="background:#3b82f6"></div> TKFT</span>
+              <span><div class="dot" style="background:#84cc16"></div> Wolfram</span>
+              <span><div class="dot" style="background:#06b6d4"></div> Seismic</span>
             </div>
           </div>
         </a>
@@ -311,10 +311,11 @@
     <div class="papers">
       <ul>
         <li><strong>encodeTape_injective</strong> — Cantor tape encoding is injective (Billiards/CantorEncoding.lean)</li>
-        <li><strong>reachesPeriod2_iff_halts</strong> — Halting ↔ period-2 orbit equivalence (Discrete/HaltingToPeriodic.lean)</li>
         <li><strong>ReachingRel.assoc</strong> — Reaching relation composition is associative (TKFT/Reaching.lean)</li>
+        <li><strong>JR.idem</strong> — Forward-invariance kernel is idempotent (WPP/Multiway.lean)</li>
+        <li><strong>StepStar.trans</strong> — Multiway step closure is transitive (WPP/Multiway.lean)</li>
+        <li><strong>reachabilityNucleus</strong> — Inflationary nucleus from multiway reachability (WPP/Multiway.lean)</li>
         <li><strong>isFixedPoint_unionNucleus_iff</strong> — Fixed point characterization (FixedPoint/PeriodicNucleus.lean)</li>
-        <li><strong>not_computable_of_reduces</strong> — Undecidability transfer theorem (Undecidability/Transfers.lean)</li>
       </ul>
     </div>
 
@@ -325,18 +326,19 @@
         <li><strong>Miranda & Ramos (2025)</strong> — "Billiard-Based Turing Machines and Computational Universality"</li>
         <li><strong>González-Prieto, Miranda, Peralta-Salas (2024)</strong> — "Topological Kleene Field Theory"</li>
         <li><strong>Cardona, Miranda, Peralta-Salas, Presas (2021)</strong> — "Constructing Turing Complete Euler Flows"</li>
-        <li><strong>Dyhr, Miranda, Cardona (2020)</strong> — "Computability and Navier-Stokes Flows"</li>
+        <li><strong>Wolfram (2020)</strong> — "A Project to Find the Fundamental Theory of Physics"</li>
+        <li><strong>Gorard (2020)</strong> — "Causal Invariance and the Branchial Structure of the Multiway System"</li>
       </ul>
     </div>
 
     <footer>
       <p>
         <strong>Miranda Dynamics Formalization</strong><br>
-        A formal verification of computational universality in dynamical systems<br><br>
+        Unifying Miranda TKFT, Wolfram Physics, and Heyting algebras with machine-checked proofs<br><br>
         <a href="https://github.com/Abraxas1010/miranda-dynamics-lean">GitHub Repository</a> &nbsp;|&nbsp;
         <a href="../../../docs/">Documentation</a> &nbsp;|&nbsp;
         Built with <a href="https://lean-lang.org">Lean 4</a> + <a href="https://github.com/leanprover-community/mathlib4">Mathlib</a><br><br>
-        © 2026 Apoth3osis Research · MIT License
+        © 2026 <a href="https://apoth3osis.io">Apoth3osis</a> · Apoth3osis License Stack v1
       </p>
     </footer>
   </div>
