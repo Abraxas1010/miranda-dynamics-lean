@@ -34,9 +34,6 @@ results/seismic_validation/*/
 data/billiard/calibration_results.json
 data/seismic/calibrated_params.json
 
-# Track a small fixture + key WIP notes for reproducibility
+# Track a small fixture for reproducibility
 !data/seismic/sample_bundle.json
 !data/seismic/realistic_fixture.json
-!WIP/
-!WIP/seismic_validation_results.md
-!WIP/seismic_evidence_mapping.md
