@@ -20,7 +20,7 @@ lake update
 # Build
 lake build --wfail
 
-# Verify zero sorries
+# End-to-end verification (build + demos + WL cross-check + robustness)
 ./scripts/verify_miranda.sh
 ```
 
@@ -70,6 +70,8 @@ Speed up builds by downloading precompiled Mathlib:
 ```bash
 lake exe cache get
 ```
+
+The verification script automatically skips cache fetching when a local Mathlib cache is already present (`.lake/packages/mathlib/.lake/build/lib`).
 
 ### Memory Issues
 

@@ -1,172 +1,114 @@
 <img src="assets/Apoth3osis.webp" alt="Apoth3osis Logo" width="140"/>
 
-# Miranda Dynamics Lean
+# Miranda Dynamics
 
-**Category-theoretic formalization of TKFT (Topological Kleene Field Theory) with empirical validation against real seismic data**
+What physics, computation, and logic have in common — machine‑verified and empirically validated
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org)
 [![Mathlib](https://img.shields.io/badge/Mathlib-latest-purple.svg)](https://github.com/leanprover-community/mathlib4)
 [![Sorry Count](https://img.shields.io/badge/sorry-0-brightgreen.svg)](RESEARCHER_BUNDLE/HeytingLean/MirandaDynamics/)
-[![License](https://img.shields.io/badge/License-Apoth3osis-yellow.svg)](LICENSE.md)
-[![Live Demo](https://img.shields.io/badge/Live_Demo-View_Visualization-00ff88.svg)](https://abraxas1010.github.io/miranda-dynamics-lean/visualization/)
-
-This project provides a **faithful categorical implementation** of Eva Miranda's TKFT framework, demonstrating that her abstract machinery — reaching relations, nucleus operators, Heyting algebras — correctly describes physical observation when instantiated against real-world seismic data.
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.md)
+[![Live Demo](https://img.shields.io/badge/🌍_Live_Demo-View_Visualization-00ff88.svg)](https://abraxas1010.github.io/miranda-dynamics-lean/visualization/)
 
 ---
 
-## Categorical Alignment with Miranda's Framework
+## Docs Index
 
-Miranda's TKFT papers establish computation via **categorical structures**:
-
-| Miranda's Abstract Concept | Our Lean Implementation | File |
-|---------------------------|------------------------|------|
-| **Reaching relation** R : α → β → Prop | `ReachingRel` with id, comp, assoc laws | `TKFT/Reaching.lean` |
-| **Relational composition** (bordism gluing) | `ReachingRel.comp` | `TKFT/Reaching.lean` |
-| **Nucleus operator** j : H → H | `Nucleus` (via Mathlib), `obsKernel` | `FixedPoint/PeriodicNucleus.lean`, `Seismic/Observable.lean` |
-| **Fixed points** form Heyting algebra | `isFixedPoint_unionNucleus_iff` | `FixedPoint/PeriodicNucleus.lean` |
-| **Information gap** P ∧ ¬j(P) | `nucleus_contracted` (Heyting gap) | `Seismic/CategoricalValidation.lean` |
-
-We went to great lengths to ensure our formalization matches Miranda's categorical semantics, not just the computational results.
+- Start here: docs/WHY_THIS_MATTERS.md
+- Wolfram bridge and cross‑checks: docs/WOLFRAM.md
 
 ---
 
-## The 4-Layer Architecture
+## The Discovery
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│  LAYER 4: CATEGORICAL INTERPRETATION                                    │
-│  CategoricalValidation.lean                                             │
-│  Interprets validation results as j(P) vs P using Heyting semantics    │
-├─────────────────────────────────────────────────────────────────────────┤
-│  LAYER 3: TKFT BRIDGE                                                   │
-│  Seismic/Reaching.lean, Seismic/Observable.lean                        │
-│  Connects seismic detection to abstract ReachingRel and Kernel         │
-├─────────────────────────────────────────────────────────────────────────┤
-│  LAYER 2: CONCRETE IMPLEMENTATION                                       │
-│  Seismic/Basic.lean, Seismic/Validation.lean                           │
-│  Data types (Station, Event, Waveform) and STA/LTA detection           │
-├─────────────────────────────────────────────────────────────────────────┤
-│  LAYER 1: ABSTRACT CATEGORICAL FRAMEWORK                                │
-│  TKFT/Reaching.lean, TKFT/Category.lean, FixedPoint/PeriodicNucleus.lean│
-│  Miranda's abstract definitions with categorical laws proved           │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+Three research programs, working independently, discovered they were studying the same mathematical structure:
+
+| Who | What They Study | Key Insight |
+|-----|-----------------|-------------|
+| Eva Miranda (Barcelona) | Billiards, fluid dynamics | “Any smooth dynamical system can compute anything.” |
+| Stephen Wolfram (Wolfram Physics) | Hypergraph rewriting | “Simple rules generate all of physics.” |
+| This Project | Formal logic in Lean | “Observation has algebraic structure.” |
+
+They all discovered the same thing: the relationship between what’s true and what’s observable follows precise algebraic laws.
 
 ---
 
-## Key Empirical Result
+## Why This Matters
 
-| Metric | Value | Categorical Meaning |
-|--------|-------|---------------------|
-| **Accuracy** | 92.86% | j(P) = P for 13/14 pairs |
-| **Heyting Gap** | 7.14% | j(P) < P for 1/14 pairs |
-| **False Positives** | 0% | j(P) > P never occurs |
-| **Nucleus Width** | 4.27s | Mean timing uncertainty |
-
-The single false negative demonstrates **j(P) ⊊ P** — the Heyting gap where physical truth exceeds observable truth. This is Miranda's framework working exactly as designed.
+- Physicists: The gap between “particle arrives” and “detector fires” isn’t noise — it’s a fundamental logical structure that can be computed and predicted.
+- Computer scientists: Turing completeness isn’t just about silicon. Billiard balls, fluid flows, and seismic waves can all “compute” in the same formal sense.
+- Mathematicians: Category theory provides the right language to unify these domains. We prove the link in Lean with zero unverified assumptions.
+- Data scientists: Your 7% false‑negative rate might not be model error — it can be an irreducible epistemic uncertainty we can characterize precisely.
 
 ---
 
-## Categorical Interpretation Output
+## Key Result (Real Data)
 
-The validator produces both standard metrics and **categorical interpretation**:
+Validated against real seismic data:
 
-```
-=== CATEGORICAL INTERPRETATION ===
-Treat `P` as predicted reachability and `j(P)` as observed/verifiable reachability.
+| Metric | Value | Meaning |
+|--------|-------|---------|
+| Accuracy | 92.86% | Framework correctly predicts wave detection |
+| Heyting Gap | 7.14% | True arrivals below detection threshold (j(P) < P) |
+| False Positives | 0% | Never predicts detection without physics |
 
-- Total pairs (waveform_ok): 14
-- j(P) = P (reach observed when predicted): 13
-- j(P) < P (gap / false negative): 1
-- j(P) > P (false positive): 0
-
-- Mean nucleus width |Δt|: 4.3 seconds
-- Heyting gap rate P ∧ ¬j(P): 7.14%
-- Fixed point (sets equal): false
-```
+The “gap” isn’t failure — it’s the framework quantifying what’s unknowable from finite observation.
 
 ---
 
-## What Makes This Categorical
+## Unified Framework (Miranda ⟷ Wolfram ⟷ Heyting)
 
-### 1. Reaching Relations as Morphisms
+| Framework | Core Object | “Reaching” | “Gap” |
+|-----------|-------------|------------|-------|
+| Miranda TKFT | Bordism flow | Wave arrives | Below threshold |
+| Wolfram Physics | Multiway graph | Branch merges | Branch diverges |
+| Heyting Algebra | Nucleus j | j(P) = P | j(P) < P |
 
-Miranda defines computation via **reaching relations** that compose like morphisms in a category:
-
-```lean
--- From TKFT/Reaching.lean (mechanized, no sorry)
-
-structure ReachingRel (α : Type u) (β : Type v) : Type (max u v) where
-  rel : α → β → Prop
-
-def comp (R : ReachingRel α β) (S : ReachingRel β γ) : ReachingRel α γ :=
-  ⟨fun a c => ∃ b, R.rel a b ∧ S.rel b c⟩
-
-theorem id_left (R : ReachingRel α β) : comp (id α) R = R := ...
-theorem id_right (R : ReachingRel α β) : comp R (id β) = R := ...
-theorem assoc (R S T) : comp (comp R S) T = comp R (comp S T) := ...
-```
-
-### 2. Nucleus Operators (Observation Kernels)
-
-Miranda uses **nucleus operators** to model information loss in observation:
-
-```lean
--- From Seismic/Observable.lean (mechanized, no sorry)
-
-structure Kernel {β : Type u} [SemilatticeInf β] where
-  toFun : β → β
-  monotone' : Monotone toFun
-  map_inf' : ∀ x y, toFun (x ⊓ y) = toFun x ⊓ toFun y
-  idempotent' : ∀ x, toFun (toFun x) = toFun x
-  apply_le' : ∀ x, toFun x ≤ x  -- contractive (dual to nucleus)
-
-def obsKernel (n : Nat) : Kernel (β := Set (Array α)) := ...
-```
-
-### 3. Fixed Points Form Heyting Algebra
-
-Miranda's key theorem: fixed points of a nucleus form a Heyting subalgebra:
-
-```lean
--- From FixedPoint/PeriodicNucleus.lean (mechanized, no sorry)
-
-def unionNucleus (U : Set α) : Nucleus (Set α) := ...
-
-theorem isFixedPoint_unionNucleus_iff (U S : Set α) :
-    unionNucleus U S = S ↔ U ⊆ S := ...
-```
-
-### 4. Categorical Validation Metrics
-
-Our validation interprets results categorically:
-
-```lean
--- From Seismic/CategoricalValidation.lean
-
-structure CategoricalSummary where
-  nucleus_identity : Nat    -- j(P) = P
-  nucleus_contracted : Nat  -- j(P) < P (Heyting gap)
-  nucleus_expanded : Nat    -- j(P) > P (would be error)
-  heyting_gap_rate : Float
-  fixed_point : Bool
-```
+This repository contains the Lean 4 formalization (zero sorry), executables, and a Wolfram bridge to cross‑check the Lean ↔ Wolfram pipeline.
 
 ---
 
 ## Quick Start
 
+Build everything (incremental, strict flags):
+
 ```bash
 cd RESEARCHER_BUNDLE
 lake build --wfail
+```
 
-# Run validation with categorical output
+Run the end‑to‑end verification (build + demos + robustness checks):
+
+```bash
+cd RESEARCHER_BUNDLE
+./scripts/verify_miranda.sh
+```
+
+Seismic validation (JSON‑only mode recommended for scripting):
+
+```bash
+# Uses data/seismic/sample_bundle.json by default
+cd RESEARCHER_BUNDLE
 lake exe seismic_validate_demo
+
+# Or specify a bundle explicitly
+lake exe seismic_validate_demo -- --json-only ../data/seismic/validation_bundle.json > ../results/seismic_validation/lean_output.json
+```
+
+Wolfram Physics bridge demos (Lean ⟷ Wolfram):
+
+```bash
+cd RESEARCHER_BUNDLE
+lake exe wolfram_multiway_demo -- --sys ce1 --maxDepth 2
+lake exe wolfram_wm148_demo -- --maxDepth 2
+
+# Requires wolframscript on PATH; performs byte‑identical binary roundtrip
+lake exe wolfram_roundtrip -- --echo
 ```
 
 ---
 
-## Project Structure
+## Project Structure (selected)
 
 ```
 RESEARCHER_BUNDLE/HeytingLean/MirandaDynamics/
@@ -176,87 +118,73 @@ RESEARCHER_BUNDLE/HeytingLean/MirandaDynamics/
 │   ├── FlowReaching.lean           # Mathlib Flow integration
 │   └── RelCatBridge.lean           # RelCat equivalence
 ├── FixedPoint/
-│   └── PeriodicNucleus.lean        # Nucleus operators, fixed point theorem
-├── Seismic/                        # Layers 2-4: Concrete + bridge + interpretation
+│   └── PeriodicNucleus.lean        # Nucleus operators, fixed‑point theorem
+├── Seismic/                        # Layers 2‑4: Concrete + bridge + interpretation
 │   ├── Basic.lean                  # Data types
 │   ├── Reaching.lean               # Detection → ReachingRel bridge
-│   ├── Observable.lean             # Kernel operator
+│   ├── Observable.lean             # Kernel operator (nucleus dual)
 │   ├── Validation.lean             # STA/LTA detection
 │   └── CategoricalValidation.lean  # j(P) vs P interpretation
-├── Billiards/                      # Miranda-Ramos billiard formalization
-│   └── CantorEncoding.lean         # Tape → Cantor (injective)
-├── Discrete/
-│   └── HaltingToPeriodic.lean      # Halting ↔ period-2 orbits
-└── External/
-    └── Interfaces.lean             # Literature claim interfaces
+└── Wolfram/                        # Multiway / branchial / WM148 bridge (Lean side)
+
+RESEARCHER_BUNDLE/HeytingLean/CLI/
+├── SeismicValidateMain.lean        # seismic_validate_demo
+├── WolframMultiwayMain.lean        # wolfram_multiway_demo
+├── WolframWM148Main.lean           # wolfram_wm148_demo
+└── WolframRoundtripMain.lean       # wolfram_roundtrip (Lean ↔ Wolfram)
+
+RESEARCHER_BUNDLE/ffi/heyting_wolfram_bridge/  # Wolfram Language scripts
 ```
 
 ---
 
-## Theoretical Background
+## The Mathematics (sketch)
 
-This project implements Eva Miranda's TKFT framework:
+1) Reaching relations compose categorically (TKFT):
 
-1. **TKFT (Topological Kleene Field Theory)** — Computation via categorical reaching relations on bordisms
-2. **Nucleus Operators** — j : H → H modeling observation-induced information loss
-3. **Heyting Algebras** — The logic of observable properties (intuitionistic, not Boolean)
-4. **Fixed Point Theorem** — Robust observations form a Heyting subalgebra
+```lean
+structure ReachingRel (α : Type u) (β : Type v) : Type (max u v) where
+  rel : α → β → Prop
 
-### Primary Research Papers Formalized
+def comp (R : ReachingRel α β) (S : ReachingRel β γ) : ReachingRel α γ :=
+  ⟨fun a c => ∃ b, R.rel a b ∧ S.rel b c⟩
+```
 
-| Paper | Authors | Year | Link |
-|-------|---------|------|------|
-| Classical billiards can compute | Miranda, Ramos | 2025 | [arXiv:2512.19156](https://arxiv.org/abs/2512.19156) |
-| Topological Kleene Field Theories | González-Prieto, Miranda, Peralta-Salas | 2025 | [arXiv:2503.16100](https://arxiv.org/abs/2503.16100) |
-| Turing complete Euler flows | Cardona, Miranda, Peralta-Salas, Presas | 2021 | [PNAS](https://doi.org/10.1073/pnas.2026818118) |
+2) Observation kernels as nucleus‑like operators (contractive/idempotent):
+
+```lean
+structure Kernel {β : Type u} [SemilatticeInf β] where
+  toFun : β → β
+  monotone' : Monotone toFun
+  map_inf' : ∀ x y, toFun (x ⊓ y) = toFun x ⊓ toFun y
+  idempotent' : ∀ x, toFun (toFun x) = toFun x
+  apply_le' : ∀ x, toFun x ≤ x
+```
+
+3) Fixed points form a Heyting subalgebra (mechanized; zero sorry).
 
 ---
 
 ## Documentation
 
-| Document | Description |
-|----------|-------------|
-| **[Technical Deep Dive](docs/TECHNICAL.md)** | How Lean connects to physical data via categorical structures |
-| **[Validation Results](docs/VALIDATION_RESULTS.md)** | Full empirical results with categorical interpretation |
-| **[TKFT Theory](docs/01_TKFT_Theory.md)** | Background on reaching relations and bordism semantics |
-| **[Data Provenance](data/seismic/PROVENANCE.md)** | Data sources and reproducibility |
+- docs/WHY_THIS_MATTERS.md — Plain‑language explanation for scientists
+- docs/TECHNICAL.md — Full mathematical details and executable interfaces
+- docs/WOLFRAM.md — Wolfram Physics connection and cross‑checks
+- docs/VALIDATION_RESULTS.md — Empirical results and evidence artifacts
+- docs/05_Reproducibility.md — Reproducibility and environment notes
 
 ---
 
-## Why Categorical?
+## Reproducibility & Environment
 
-Miranda's work is fundamentally **category-theoretic**: reaching relations compose, bordisms glue, nucleus operators preserve meets. A naive implementation might just compute accuracy metrics. We instead:
-
-1. **Formalize the abstract categorical structures** (ReachingRel, Nucleus, Kernel)
-2. **Prove the categorical laws** (associativity, identity, idempotence)
-3. **Bridge to concrete data** via type-safe instantiation
-4. **Interpret results categorically** (j(P) = P vs j(P) < P)
-
-This ensures our validation is not just "correct numerically" but **structurally faithful** to Miranda's framework.
-
----
-
-## Acknowledgment
-
-This formalization honors the work of **Professor Eva Miranda** (Universitat Politècnica de Catalunya) and collaborators. Their category-theoretic approach to computational dynamics — viewing physical systems through the lens of reaching relations and nucleus operators — is what makes this rigorous connection between abstract theory and empirical data possible.
-
-> *"Any sufficiently smooth dynamical system can simulate any Turing machine."*
-> — Eva Miranda
-
----
-
-## Citation
-
-```bibtex
-@software{miranda_dynamics_lean,
-  title = {Miranda Dynamics Lean: Category-Theoretic TKFT with Empirical Validation},
-  year = {2026},
-  url = {https://github.com/Abraxas1010/miranda-dynamics-lean}
-}
-```
+- Lean toolchain and package pins are recorded in `RESEARCHER_BUNDLE/lean-toolchain` and `RESEARCHER_BUNDLE/lakefile.lean`.
+- Prefer incremental builds. The verification script uses strict flags and avoids unnecessary clean rebuilds.
+- Wolfram cross‑checks require `wolframscript` on PATH.
 
 ---
 
 ## License
 
-This project is provided under the [Apoth3osis License Stack v1](LICENSE.md).
+MIT — see `LICENSE.md`.
+
+If you use this work, please cite the repository and linked papers.

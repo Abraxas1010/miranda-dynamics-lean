@@ -45,3 +45,13 @@ lean_exe miranda_partialflow_demo where
 -- Seismic validation demo (observation-first grounding)
 lean_exe seismic_validate_demo where
   root := `HeytingLean.CLI.SeismicValidateMain
+
+-- Wolfram Physics bridge demos + Wolfram Language cross-check
+lean_exe wolfram_multiway_demo where
+  root := `HeytingLean.CLI.WolframMultiwayMain
+
+lean_exe wolfram_wm148_demo where
+  root := `HeytingLean.CLI.WolframWM148Main
+
+lean_exe wolfram_roundtrip where
+  root := `HeytingLean.CLI.WolframRoundtripMain

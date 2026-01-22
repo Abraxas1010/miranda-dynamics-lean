@@ -52,6 +52,7 @@ import HeytingLean.MirandaDynamics.Geometry.Forms.Manifold
 import HeytingLean.MirandaDynamics.Geometry.Contact.Euclidean
 import HeytingLean.MirandaDynamics.Fluids.VectorCalculus.Curl3
 import HeytingLean.MirandaDynamics.Fluids.VectorCalculus.GradDiv3
+import HeytingLean.MirandaDynamics.Wolfram
 
 /-!
 # MirandaDynamics (umbrella)
