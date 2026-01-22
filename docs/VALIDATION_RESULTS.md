@@ -116,6 +116,26 @@ The accuracy decrease in `comprehensive` (87.29%) as scale increases is expected
 
 **Key insight:** Zero false positives across all configurations confirms the model's conservative nature — it never claims an arrival that didn't happen.
 
+Note: To measure false positives rigorously (not just “none happened to occur”),
+generate explicit negative controls with the Python bridge:
+
+```bash
+python3 scripts/seismic_bridge.py \
+  --stations IU.ANMO,IU.HRV \
+  --days-back 60 --max-events 3 \
+  --negatives-per-station 1 \
+  --output data/seismic/validation_with_negatives.json
+
+cd RESEARCHER_BUNDLE
+lake build --wfail seismic_validate_demo
+lake exe seismic_validate_demo -- --json-only ../data/seismic/validation_with_negatives.json \
+  > ../results/seismic_validation/lean_output_with_negatives.json
+```
+
+The Lean executable’s `standard_metrics` then reports a full confusion matrix
+(`true_negative`, `false_positive`, and `false_positive_rate`), which should be
+reported alongside accuracy for balanced evaluation.
+
 ---
 
 ## 3. Billiard Ball Calibration
@@ -258,6 +278,36 @@ lake build --wfail seismic_validate_demo
 
 # Run with archived bundle
 lake exe seismic_validate_demo -- ../data/seismic/archived/validation_2026-01-21.json
+
+### Balanced Fixture (Archived; includes negatives)
+
+```bash
+# Run the synthetic balanced bundle with explicit negative controls
+cd RESEARCHER_BUNDLE
+lake exe seismic_validate_demo -- --json-only ../data/seismic/archived/validation_balanced_fixture.json \
+  > ../results/seismic_validation/lean_output_balanced_fixture.json
+
+# Generate a report directory
+cd ..
+python3 scripts/generate_validation_report.py \
+  --bundle data/seismic/archived/validation_balanced_fixture.json \
+  --lean-output results/seismic_validation/lean_output_balanced_fixture.json \
+  --output-dir results/seismic_validation_balanced_fixture
+```
+
+Observed confusion matrix for `validation_balanced_fixture.json`:
+
+- true_positive = 0
+- true_negative = 3
+- false_positive = 0
+- false_negative = 9
+- accuracy = 25.00%
+- false_positive_rate = 0.00%
+
+Note: This synthetic archived dataset intentionally includes weak positive windows
+to demonstrate the mechanics of a complete confusion matrix. The purpose is to
+verify end‑to‑end handling of TN/FP under controlled conditions, not to represent
+real‑world performance.
 ```
 
 ### Full Pipeline (Network Required)
@@ -347,7 +397,9 @@ The 92.86% accuracy empirically confirms that the formal TKFT definitions correc
 | File | Description |
 |------|-------------|
 | `data/seismic/archived/validation_2026-01-21.json` | Archived baseline bundle |
+| `data/seismic/archived/validation_balanced_fixture.json` | Archived balanced bundle (with negatives) |
 | `results/seismic_validation/validation_report.json` | Machine-readable results |
+| `results/seismic_validation_balanced_fixture/validation_report.json` | Report for balanced fixture |
 | `results/seismic_validation/arrival_comparison.csv` | Per-pair comparison table |
 | `results/seismic_validation/expanded_comparison.md` | Multi-config comparison |
 | `data/billiard/calibration_results.json` | Billiard calibration data |

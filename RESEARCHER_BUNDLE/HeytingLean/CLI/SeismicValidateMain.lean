@@ -194,10 +194,19 @@ def validateBundle (b : Bundle) : Except String ValidationOutput := do
     let key := mkKey eid st
     let pred? := predMap.get? key
     let pred := match pred? with | some p => p | none => Json.mkObj []
-    let shouldReach :=
-      match getBool? pred "should_reach" with
+    -- Support negative-control windows: if a waveform entry marks `negative_control = true`,
+    -- treat this as a "should_reach = false" label regardless of the prediction map.
+    let negativeCtl : Bool :=
+      match getBool? w "negative_control" with
       | some b => b
-      | none => true
+      | none => false
+    let shouldReach :=
+      if negativeCtl then
+        false
+      else
+        match getBool? pred "should_reach" with
+        | some b => b
+        | none => true
     let predMs :=
       match HeytingLean.CLI.Certified.getInt? pred "predicted_p_arrival_ms" with
       | some i => i
@@ -223,6 +232,15 @@ def validateBundle (b : Bundle) : Except String ValidationOutput := do
 
         -- Tighten the search window around the predicted P arrival to reduce false triggers.
         let dtMs : Float := 1000.0 / sr
+        -- For negative-control windows (no predicted arrival), center the observation window
+        -- in the middle of the waveform window to avoid bias.
+        let predMs :=
+          if negativeCtl then
+            let n := samples.size
+            let midOffsetMs : Float := (Float.ofNat n) * dtMs / 2.0
+            startMs + (Int.ofNat (UInt64.toNat midOffsetMs.toUInt64))
+          else
+            predMs
         let searchStartMs : Int := predMs - (Int.ofNat (60 * 1000))
         let searchStopMs : Int := predMs + (Int.ofNat (10 * 60 * 1000))
         let startIdx : Nat :=

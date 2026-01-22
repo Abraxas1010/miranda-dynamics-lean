@@ -270,6 +270,7 @@ Three independent research programs. One mathematical structure.
 | **[Technical Deep Dive](docs/TECHNICAL.md)** | Full mathematical details and executable interfaces |
 | **[Validation Results](docs/VALIDATION_RESULTS.md)** | Empirical results and evidence artifacts |
 | **[Reproducibility](docs/05_Reproducibility.md)** | Environment and build notes |
+| **Balanced Fixture (archived)** | See docs/VALIDATION_RESULTS.md for a pinned bundle with negatives (TN/FP/FPR) |
 
 ---
 
@@ -287,6 +288,9 @@ Run the end-to-end verification (build + demos + robustness checks):
 ```bash
 cd RESEARCHER_BUNDLE
 ./scripts/verify_miranda.sh
+
+# If Wolfram isn't available locally, skip the WL echo check
+./scripts/verify_miranda.sh --no-wolfram
 ```
 
 Seismic validation (JSON-only mode recommended for scripting):
@@ -298,6 +302,10 @@ lake exe seismic_validate_demo
 
 # Or specify a bundle explicitly
 lake exe seismic_validate_demo -- --json-only ../data/seismic/validation_bundle.json > ../results/seismic_validation/lean_output.json
+
+# Offline, balanced (archived) bundle with explicit negative controls
+lake exe seismic_validate_demo -- --json-only ../data/seismic/archived/validation_balanced_fixture.json \
+  > ../results/seismic_validation/lean_output_balanced_fixture.json
 ```
 
 Wolfram Physics bridge demos (Lean ⟷ Wolfram):

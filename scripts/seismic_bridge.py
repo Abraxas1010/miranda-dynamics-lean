@@ -128,7 +128,7 @@ def parse_stationxml_station(xml_bytes: bytes) -> dict:
     }
 
 
-def build_dataselect_url(
+def build_timeseries_url(
     base: str,
     *,
     network: str,
@@ -139,6 +139,7 @@ def build_dataselect_url(
     endtime_iso: str,
     format: str = "geocsv",
 ) -> str:
+    # IRIS timeseries service returns CSV/GeoCSV; dataselect returns miniSEED.
     qs = {
         "net": network,
         "sta": station,
@@ -148,7 +149,7 @@ def build_dataselect_url(
         "endtime": endtime_iso,
         "format": format,
     }
-    return base.rstrip("/") + "/fdsnws/dataselect/1/query?" + urllib.parse.urlencode(qs)
+    return base.rstrip("/") + "/irisws/timeseries/1/query?" + urllib.parse.urlencode(qs)
 
 
 def parse_geocsv_samples(geocsv_bytes: bytes, *, max_samples: int = 20000) -> dict:
@@ -159,6 +160,12 @@ def parse_geocsv_samples(geocsv_bytes: bytes, *, max_samples: int = 20000) -> di
     from timestamps if possible.
     """
     text = geocsv_bytes.decode("utf-8", errors="replace")
+    # Classify common failure modes so downstream can reason about them
+    first_nonempty = next((ln for ln in (ln.strip() for ln in text.splitlines()) if ln), "")
+    if not first_nonempty:
+        raise ValueError("GeoCSV: no_data (empty body)")
+    if first_nonempty.lower().startswith("<html"):
+        raise ValueError("GeoCSV: unexpected_content_type html")
     header = None
     data_lines: list[str] = []
     for line in text.splitlines():
@@ -171,8 +178,8 @@ def parse_geocsv_samples(geocsv_bytes: bytes, *, max_samples: int = 20000) -> di
             continue
         data_lines.append(line)
 
-    if header is None:
-        raise ValueError("GeoCSV: missing header")
+    if header is None or "," not in first_nonempty:
+        raise ValueError("GeoCSV: unexpected_format (no header)")
 
     # Determine sampling interval from the first two samples.
     if len(data_lines) < 2:
@@ -395,7 +402,7 @@ def fetch_waveform(
     end_iso: str,
     max_samples: int,
 ) -> dict:
-    url = build_dataselect_url(
+    url = build_timeseries_url(
         dataselect_base,
         network=network,
         station=station,
@@ -405,7 +412,10 @@ def fetch_waveform(
         endtime_iso=end_iso,
         format="geocsv",
     )
-    cache_path = os.path.join(cache_dir, f"geocsv_{network}_{station}_{location}_{channel}_{start_iso}_{end_iso}.csv")
+    # Sanitize filename components for portability (Windows ':' in ISO timestamps)
+    def _san(s: str) -> str:
+        return "".join(c if (c.isalnum() or c in (".", "-", "_")) else "-" for c in s)
+    cache_path = os.path.join(cache_dir, f"geocsv_{_san(network)}_{_san(station)}_{_san(location)}_{_san(channel)}_{_san(start_iso)}_{_san(end_iso)}.csv")
     raw = _cache_read(cache_path)
     if raw is None:
         raw = _http_get(url, timeout_sec=60)
@@ -442,6 +452,8 @@ def main() -> int:
     p.add_argument("--lta-sec", type=float, default=20.0)
     p.add_argument("--snr-threshold", type=float, default=3.0)
     p.add_argument("--tolerance-sec", type=float, default=10.0)
+    p.add_argument("--negatives-per-station", type=int, default=0,
+                   help="If >0, append shifted windows per (event,station) labeled should_reach=False")
     args = p.parse_args()
 
     _mkdirp(args.cache_dir)
@@ -523,6 +535,58 @@ def main() -> int:
                             "error": str(e),
                         }
                     )
+
+                # Optional negative-control windows well after the predicted arrival
+                if args.negatives_per_station > 0 and pred.get("arrival_time_ms") is not None:
+                    neg_gap_sec = 2 * 60 * 60  # 2 hours
+                    for i in range(args.negatives_per_station):
+                        neg_start_ms = int(pred["arrival_time_ms"]) + (window_post_sec + neg_gap_sec + i * 600) * 1000
+                        neg_end_ms = int(neg_start_ms + (window_pre_sec + window_post_sec) * 1000)
+                        neg_start_iso = _unix_ms_to_iso8601(neg_start_ms)
+                        neg_end_iso = _unix_ms_to_iso8601(neg_end_ms)
+                        predictions.append({
+                            "event_id": ev["id"],
+                            "station": key,
+                            "should_reach": False,
+                            "predicted_p_arrival": None,
+                            "predicted_p_arrival_ms": None,
+                            "phase": None,
+                            "distance_deg": distaz.get("distance_deg"),
+                            "azimuth": distaz.get("azimuth"),
+                            "model": "ak135",
+                        })
+                        try:
+                            neg_wf = fetch_waveform(
+                                dataselect_base=args.dataselect_base,
+                                cache_dir=args.cache_dir,
+                                network=st["network"],
+                                station=st["code"],
+                                location=args.location,
+                                channel=args.channel,
+                                start_iso=neg_start_iso,
+                                end_iso=neg_end_iso,
+                                max_samples=args.max_samples,
+                            )
+                            neg_wf.update({
+                                "event_id": ev["id"],
+                                "start_time": neg_start_iso,
+                                "end_time": neg_end_iso,
+                                "sample_rate": neg_wf.get("sample_rate_hz"),
+                                "negative_control": True,
+                                "station": key,
+                                "channel": args.channel,
+                            })
+                            waveforms.append(neg_wf)
+                        except Exception as e:
+                            waveforms.append({
+                                "event_id": ev["id"],
+                                "station": key,
+                                "channel": args.channel,
+                                "start_time": neg_start_iso,
+                                "end_time": neg_end_iso,
+                                "error": f"negative_window: {str(e)}",
+                                "negative_control": True,
+                            })
 
         bundle = {
             "metadata": {

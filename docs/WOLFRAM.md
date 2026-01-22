@@ -34,6 +34,10 @@ lake exe wolfram_wm148_demo -- --maxDepth 2
 lake exe wolfram_roundtrip -- --echo
 ```
 
+Security note: Only run `--notebook` mode on trusted notebooks. The notebook
+runner executes extracted WolframLanguage expressions and may load packages
+(`SetReplace``); treat untrusted notebooks as potentially unsafe.
+
 Expected success message for the roundtrip:
 
 ```
@@ -61,4 +65,3 @@ If `wolframscript` is unavailable, the script fails early with a clear message. 
 
 - “wolframscript not found”: ensure Wolfram Language or WolframScript is installed and on PATH.
 - Empty PATH robustness test: the script intentionally clears PATH and expects a non-zero exit; that is a success criterion (no crash).
-

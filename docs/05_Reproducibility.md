@@ -22,6 +22,9 @@ lake build --wfail
 
 # End-to-end verification (build + demos + WL cross-check + robustness)
 ./scripts/verify_miranda.sh
+
+# If Wolfram isn't available locally, skip the WL echo check
+./scripts/verify_miranda.sh --no-wolfram
 ```
 
 ## Build Outputs

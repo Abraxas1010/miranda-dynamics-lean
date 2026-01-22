@@ -49,14 +49,22 @@ lake build --wfail HeytingLean.Tests.MirandaDynamics.AllSanity
 echo "✓ Tests build successful"
 
 echo ""
-echo "Running Wolfram Language cross-check (mandatory)..."
-if ! command -v wolframscript >/dev/null 2>&1; then
-  echo "ERROR: wolframscript not found in PATH (required for cross-check)"
-  exit 1
+NO_WL=0
+if [[ "${1:-}" == "--no-wolfram" ]]; then
+  NO_WL=1
 fi
 
-lake exe wolfram_roundtrip -- --echo
-echo "✓ Wolfram cross-check passed"
+if [[ "$NO_WL" -eq 1 ]]; then
+  echo "Skipping Wolfram cross-check (--no-wolfram)."
+else
+  echo "Running Wolfram Language cross-check (mandatory)..."
+  if ! command -v wolframscript >/dev/null 2>&1; then
+    echo "ERROR: wolframscript not found in PATH (required for cross-check)"
+    exit 1
+  fi
+  lake exe wolfram_roundtrip -- --echo
+  echo "✓ Wolfram cross-check passed"
+fi
 
 # Count files
 echo ""
