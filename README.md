@@ -266,6 +266,7 @@ Three independent research programs. One mathematical structure.
 | Document | Description |
 |----------|-------------|
 | **[Why This Matters](docs/WHY_THIS_MATTERS.md)** | Plain-language explanation for scientists |
+| **[Philosophical Foundations](docs/PHILOSOPHICAL_FOUNDATIONS.md)** | Haptic realism and constructive mathematics |
 | **[Wolfram Connection](docs/WOLFRAM.md)** | Wolfram Physics bridge and cross-checks |
 | **[Technical Deep Dive](docs/TECHNICAL.md)** | Full mathematical details and executable interfaces |
 | **[Validation Results](docs/VALIDATION_RESULTS.md)** | Empirical results and evidence artifacts |
